@@ -1,21 +1,16 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Response, Request } from "express";
 import jwt from 'jsonwebtoken';
 import User, { IUser } from "../database/models/User";
 
-
 export const secretKey = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcxNDIyMTUyNywiaWF0IjoxNzE0MjIxNTI3fQ.s3yQikiTmhhHHh2QKiozLT8RswK0LATLVZ2ktfTkfhs";
 
-export const authenticateToken: any = async (req: {
-    user: IUser;
-    headers: { authorization: string; };
-    body: IUser;
-}, res: Response, next: NextFunction): Promise<void> => {
+export const authenticateToken: (req: Request & { user?: IUser }, res: Response, next: NextFunction) => Promise<void> = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     // Check if authorization header is missing
     if (!authHeader) {
         res.status(401).json({ error: 'Authorization header missing' });
-        return; // Return to end the function
+        return;
     }
 
     const token = authHeader.split(' ')[1];
@@ -23,7 +18,7 @@ export const authenticateToken: any = async (req: {
     // Check if token is missing
     if (!token) {
         res.status(401).json({ error: 'Token missing' });
-        return; // Return to end the function
+        return;
     }
 
     try {
@@ -38,11 +33,11 @@ export const authenticateToken: any = async (req: {
                 message: 'User not found',
                 data: null
             });
-            return; // Return to end the function
+            return;
         }
 
         // Attach user data to req object and continue to next handler
-        req.user = user as IUser;
+        req.user = user;
         next(); // Proceed to the next middleware/route handler
         
     } catch (error) {
@@ -52,6 +47,5 @@ export const authenticateToken: any = async (req: {
             data: null,
             message: 'Invalid token'
         });
-        return; // Return to end the function
     }
 };

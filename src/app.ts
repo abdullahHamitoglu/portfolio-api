@@ -5,8 +5,6 @@ import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 3000;
-const router = express.Router();
-const mongoUri = 'mongodb://portfolio:DJK3lhoqjL9H2RiK@SG-tall-locket-7551-62424.servers.mongodirector.com:27017/portfolio';
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Allow any origin

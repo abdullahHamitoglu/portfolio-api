@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-import express, { Response, Router } from "express";
-import { UsersRoutes } from "./user";
+import express, { Router } from "express";
 import User, { IUser } from "../database/models/User";
 import { secretKey } from '../controllers/authToken';
 
