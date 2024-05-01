@@ -21,6 +21,9 @@ app.use(express.json());
 app.use('/api', MainRouter);
 app.use(express.static(path.resolve('./public')));
 
+app.use('/', (req, res) => {
+  res.sendFile(path.resolve('./public/index.html'));
+});
 const port = process.env.PORT || 3000;
 // Start server
 app.listen(port, () => {
