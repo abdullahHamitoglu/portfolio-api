@@ -2,11 +2,18 @@ import express from 'express';
 import { MainRouter } from './routes';
 import path from 'path';
 import dotenv from 'dotenv';
+import cors from 'cors';
 dotenv.config();
 
 import './database'; // initialize database
 
 const app = express();
+const corsOptions = {
+  origin: '*', // You can specify specific origins if needed
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
+};
+app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Allow any origin

@@ -7,9 +7,16 @@ const express_1 = __importDefault(require("express"));
 const routes_1 = require("./routes");
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 require("./database"); // initialize database
 const app = (0, express_1.default)();
+const corsOptions = {
+    origin: '*', // You can specify specific origins if needed
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
+};
+app.use((0, cors_1.default)(corsOptions));
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*'); // Allow any origin
     res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS'); // Allow specified methods
