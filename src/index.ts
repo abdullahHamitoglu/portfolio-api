@@ -1,16 +1,16 @@
 import express from 'express';
-import './database'; // initialize database
 import { MainRouter } from './routes';
 import path from 'path';
 import dotenv from 'dotenv';
-
 dotenv.config();
+
+import './database'; // initialize database
 
 const app = express();
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Allow any origin
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS'); // Allow specified methods
   // Allow specific headers including 'Authorization'
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
