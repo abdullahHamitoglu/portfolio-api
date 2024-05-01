@@ -2,9 +2,12 @@ import express from 'express';
 import './database'; // initialize database
 import { MainRouter } from './routes';
 import path from 'path';
+import { configDotenv } from 'dotenv';
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+configDotenv();
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Allow any origin
