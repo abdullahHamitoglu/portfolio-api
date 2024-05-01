@@ -1,6 +1,9 @@
 import { connect } from "mongoose";
+import dotenv from 'dotenv';
 
-const mongoUri = 'mongodb://portfolio:DJK3lhoqjL9H2RiK@SG-tall-locket-7551-62424.servers.mongodirector.com:27017/portfolio';
+dotenv.config();
+
+const mongoUri = process.env.DB_URI as string;
 
 // Connect to MongoDB
 connect(mongoUri)

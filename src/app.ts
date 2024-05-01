@@ -2,12 +2,11 @@ import express from 'express';
 import './database'; // initialize database
 import { MainRouter } from './routes';
 import path from 'path';
-import { configDotenv } from 'dotenv';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
-
-configDotenv();
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Allow any origin
@@ -22,6 +21,7 @@ app.use(express.json());
 app.use('/api', MainRouter);
 app.use(express.static(path.resolve('./public')));
 
+const port = process.env.PORT || 3000;
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port http://localhost:${port}`);
