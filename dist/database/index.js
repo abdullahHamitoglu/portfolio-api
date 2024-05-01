@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const mongoUri = process.env.DB_URI;
+const mongoUri = process.env.MONGODB_URI;
 // Connect to MongoDB
 (0, mongoose_1.connect)(mongoUri)
     .then(() => console.log('Connected to MongoDB'))

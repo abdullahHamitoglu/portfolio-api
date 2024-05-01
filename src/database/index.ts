@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const mongoUri = process.env.DB_URI as string;
+const mongoUri = process.env.MONGODB_URI as string;
 
 // Connect to MongoDB
 connect(mongoUri)
