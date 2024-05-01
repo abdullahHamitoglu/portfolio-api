@@ -20,7 +20,10 @@ router.post("/", authenticateToken, async (req, res) => {
         await skill.save();
         res.json({
             status: "success",
-            result: skill,
+            result: {
+                id: skill._id,
+                title: skill.title,
+            },
             message: "Skill created successfully",
         });
     } catch (error) {

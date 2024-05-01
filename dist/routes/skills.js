@@ -32,7 +32,10 @@ router.post("/", authToken_1.authenticateToken, (req, res) => __awaiter(void 0, 
         yield skill.save();
         res.json({
             status: "success",
-            result: skill,
+            result: {
+                id: skill._id,
+                title: skill.title,
+            },
             message: "Skill created successfully",
         });
     }
