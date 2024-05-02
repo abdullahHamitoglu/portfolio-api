@@ -24,27 +24,38 @@ dotenv_1.default.config();
 // Configure storage for multer
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
+        let destinationPath;
         if (process.env.PROD) {
-            // Specify the destination directory for file uploads
-            cb(null, process.cwd() + '/public/uploads/projects/images');
-            // Create the directory if it doesn't exist
-            if (!fs_1.default.existsSync(process.cwd() + '/public/uploads/projects/images')) {
-                fs_1.default.mkdirSync(process.cwd() + '/public/uploads/projects/images', { recursive: true });
-            }
+            // Production environment
+            destinationPath = path_1.default.join(process.cwd(), 'public', 'uploads', 'projects', 'images');
         }
         else {
-            // Specify the destination directory for file uploads
-            cb(null, process.cwd() + '/uploads/projects/images');
+            // Development environment
+            destinationPath = path_1.default.join(process.cwd(), 'uploads', 'projects', 'images');
+        }
+        // Log the path for debugging purposes
+        console.log('Destination path for image uploads:', destinationPath);
+        try {
             // Create the directory if it doesn't exist
-            if (!fs_1.default.existsSync(process.cwd() + '/uploads/projects/images')) {
-                fs_1.default.mkdirSync(process.cwd() + '/uploads/projects/images', { recursive: true });
+            if (!fs_1.default.existsSync(destinationPath)) {
+                fs_1.default.mkdirSync(destinationPath, { recursive: true });
             }
+            // Specify the destination directory for file uploads
+            cb(null, destinationPath);
+        }
+        catch (error) {
+            // Handle errors related to directory creation
+            console.error('Error creating destination directory:', error);
+            cb(error);
         }
     },
     filename: (req, file, cb) => {
         // Specify the filename for the uploaded file
         const ext = path_1.default.extname(file.originalname);
-        cb(null, `${Date.now()}${ext}`);
+        const filename = `${Date.now()}${ext}`;
+        // Log the filename for debugging purposes
+        console.log('Generated filename for uploaded file:', filename);
+        cb(null, filename);
     },
 });
 const upload = (0, multer_1.default)({ storage });

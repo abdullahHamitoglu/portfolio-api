@@ -11,28 +11,43 @@ dotenv.config();
 
 // Configure storage for multer
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (req, file, cb: any) => {
+        let destinationPath;
+
         if (process.env.PROD) {
-            // Specify the destination directory for file uploads
-            cb(null, process.cwd() + '/public/uploads/projects/images');
-            // Create the directory if it doesn't exist
-            if (!fs.existsSync(process.cwd() + '/public/uploads/projects/images')) {
-                fs.mkdirSync(process.cwd() + '/public/uploads/projects/images', { recursive: true });
-            }
+            // Production environment
+            destinationPath = path.join(process.cwd(), 'public', 'uploads', 'projects', 'images');
         } else {
-            // Specify the destination directory for file uploads
-            cb(null, process.cwd() + '/uploads/projects/images');
+            // Development environment
+            destinationPath = path.join(process.cwd(), 'uploads', 'projects', 'images');
+        }
+
+        // Log the path for debugging purposes
+        console.log('Destination path for image uploads:', destinationPath);
+
+        try {
             // Create the directory if it doesn't exist
-            if (!fs.existsSync(process.cwd() + '/uploads/projects/images')) {
-                fs.mkdirSync(process.cwd() + '/uploads/projects/images', { recursive: true });
+            if (!fs.existsSync(destinationPath)) {
+                fs.mkdirSync(destinationPath, { recursive: true });
             }
+
+            // Specify the destination directory for file uploads
+            cb(null, destinationPath);
+        } catch (error) {
+            // Handle errors related to directory creation
+            console.error('Error creating destination directory:', error);
+            cb(error);
         }
     },
-
     filename: (req, file, cb) => {
         // Specify the filename for the uploaded file
         const ext = path.extname(file.originalname);
-        cb(null, `${Date.now()}${ext}`);
+        const filename = `${Date.now()}${ext}`;
+
+        // Log the filename for debugging purposes
+        console.log('Generated filename for uploaded file:', filename);
+
+        cb(null, filename);
     },
 });
 
