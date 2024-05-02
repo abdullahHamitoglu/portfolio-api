@@ -5,21 +5,30 @@ import User from "../database/models/User";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
 
-// Configure storage options for multer
-
-// Create an instance of multer with the storage configuration
+dotenv.config();
 
 // Configure storage for multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // Specify the destination directory for file uploads
-        cb(null, process.cwd() + '/public/uploads/projects/images');
-        // Create the directory if it doesn't exist
-        if (!fs.existsSync(process.cwd() + '/public/uploads/projects/images')) {
-            fs.mkdirSync(process.cwd() + '/public/uploads/projects/images', { recursive: true });
+        if (process.env.PROD) {
+            // Specify the destination directory for file uploads
+            cb(null, process.cwd() + '/public/uploads/projects/images');
+            // Create the directory if it doesn't exist
+            if (!fs.existsSync(process.cwd() + '/public/uploads/projects/images')) {
+                fs.mkdirSync(process.cwd() + '/public/uploads/projects/images', { recursive: true });
+            }
+        } else {
+            // Specify the destination directory for file uploads
+            cb(null, process.cwd() + '/uploads/projects/images');
+            // Create the directory if it doesn't exist
+            if (!fs.existsSync(process.cwd() + '/uploads/projects/images')) {
+                fs.mkdirSync(process.cwd() + '/uploads/projects/images', { recursive: true });
+            }
         }
     },
+
     filename: (req, file, cb) => {
         // Specify the filename for the uploaded file
         const ext = path.extname(file.originalname);

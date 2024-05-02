@@ -19,16 +19,26 @@ const authToken_1 = require("../controllers/authToken");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-// Configure storage options for multer
-// Create an instance of multer with the storage configuration
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 // Configure storage for multer
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        // Specify the destination directory for file uploads
-        cb(null, process.cwd() + '/public/uploads/projects/images');
-        // Create the directory if it doesn't exist
-        if (!fs_1.default.existsSync(process.cwd() + '/public/uploads/projects/images')) {
-            fs_1.default.mkdirSync(process.cwd() + '/public/uploads/projects/images', { recursive: true });
+        if (process.env.PROD) {
+            // Specify the destination directory for file uploads
+            cb(null, process.cwd() + '/public/uploads/projects/images');
+            // Create the directory if it doesn't exist
+            if (!fs_1.default.existsSync(process.cwd() + '/public/uploads/projects/images')) {
+                fs_1.default.mkdirSync(process.cwd() + '/public/uploads/projects/images', { recursive: true });
+            }
+        }
+        else {
+            // Specify the destination directory for file uploads
+            cb(null, process.cwd() + '/uploads/projects/images');
+            // Create the directory if it doesn't exist
+            if (!fs_1.default.existsSync(process.cwd() + '/uploads/projects/images')) {
+                fs_1.default.mkdirSync(process.cwd() + '/uploads/projects/images', { recursive: true });
+            }
         }
     },
     filename: (req, file, cb) => {
