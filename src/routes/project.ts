@@ -14,10 +14,10 @@ import fs from 'fs';
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // Specify the destination directory for file uploads
-        cb(null, 'public/uploads/projects/images');
+        cb(null, process.cwd() + 'public/uploads/projects/images');
         // Create the directory if it doesn't exist
-        if (!fs.existsSync('public/uploads/projects/images')) {
-            fs.mkdirSync('public/uploads/projects/images', { recursive: true });
+        if (!fs.existsSync(process.cwd() + 'public/uploads/projects/images')) {
+            fs.mkdirSync(process.cwd() + 'public/uploads/projects/images', { recursive: true });
         }
     },
     filename: (req, file, cb) => {
