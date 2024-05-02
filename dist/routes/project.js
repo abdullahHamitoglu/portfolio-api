@@ -26,6 +26,10 @@ const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         // Specify the destination directory for file uploads
         cb(null, 'public/uploads/projects/images');
+        // Create the directory if it doesn't exist
+        if (!fs_1.default.existsSync('public/uploads/projects/images')) {
+            fs_1.default.mkdirSync('public/uploads/projects/images', { recursive: true });
+        }
     },
     filename: (req, file, cb) => {
         // Specify the filename for the uploaded file
