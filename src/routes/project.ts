@@ -9,51 +9,43 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Set base path for uploads based on environment
+let basePath;
+if (process.env.PROD) {
+    basePath = '/var/task/uploads/projects/images';
+} else if (process.env.SERVERLESS) {
+    // Use /tmp for serverless environments like AWS Lambda
+    basePath = '/tmp/uploads/projects/images';
+} else {
+    basePath = process.cwd() + '/uploads/projects/images';
+}
+
+// Ensure the directory exists
+if (!fs.existsSync(basePath)) {
+    fs.mkdirSync(basePath, { recursive: true });
+}
+
 // Configure storage for multer
 const storage = multer.diskStorage({
-    destination: (req, file, cb: any) => {
-        let destinationPath;
-
-        if (process.env.PROD) {
-            // Production environment
-            destinationPath = path.join(process.cwd(), 'public', 'uploads', 'projects', 'images');
-        } else {
-            // Development environment
-            destinationPath = path.join(process.cwd(), 'uploads', 'projects', 'images');
-        }
-
-        // Log the path for debugging purposes
-        console.log('Destination path for image uploads:', destinationPath);
-
-        try {
-            // Create the directory if it doesn't exist
-            if (!fs.existsSync(destinationPath)) {
-                fs.mkdirSync(destinationPath, { recursive: true });
-            }
-
-            // Specify the destination directory for file uploads
-            cb(null, destinationPath);
-        } catch (error) {
-            // Handle errors related to directory creation
-            console.error('Error creating destination directory:', error);
-            cb(error);
-        }
+    destination: (req, file, cb) => {
+        // Specify the destination directory for file uploads
+        cb(null, basePath);
     },
     filename: (req, file, cb) => {
         // Specify the filename for the uploaded file
         const ext = path.extname(file.originalname);
         const filename = `${Date.now()}${ext}`;
-
-        // Log the filename for debugging purposes
-        console.log('Generated filename for uploaded file:', filename);
-
         cb(null, filename);
     },
 });
 
+// Initialize multer with the storage configuration
 const upload = multer({ storage });
+
 const router = Router();
-router.get('/', async (req: any, res) => {
+
+// Route to fetch all projects
+router.get('/', async (req, res) => {
     try {
         const projects = await Project.find();
         res.json({
@@ -62,48 +54,42 @@ router.get('/', async (req: any, res) => {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                // return full image url host and port and path 
-                image: `${req.protocol}://${req.get('host')}${project.image}`,
+                image: `${req.protocol}://${req.get('host')}${project.image}`, // Return full image URL
             })),
             message: 'Projects fetched successfully',
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching projects:', error);
         res.status(500).json({ error: 'Error fetching projects' });
     }
 });
+
 // Route to create a new project
 router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         // Create a new project instance using the request body data
-        const project: any = new Project(req.body);
+        const project = new Project(req.body);
 
-        // Check if an image file is uploaded
+        // Handle image file upload
         if (req.file) {
-            // Construct the image path based on the uploaded file's information
-            project.image = `/uploads/projects/images/${req.file.filename}`;
-        } else {
-            // Handle the case where no image file was uploaded (optional)
-            project.image = null; // or set a default image URL if desired
+            project.image = `${basePath}/${req.file.filename}`;
         }
 
         // Save the project to the database
         await project.save();
 
-        // Respond with the created project data and a success message
         res.json({
             status: 'success',
             result: {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image}`, // Return the image URL
+                image: `${req.protocol}://${req.get('host')}${project.image}`,
             },
             message: 'Project created successfully',
         });
     } catch (error) {
-        // Log the error and respond with an error message
-        console.error(error);
+        console.error('Error creating project:', error);
         res.status(500).json({
             status: 'error',
             error: 'Error creating project',
@@ -134,7 +120,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Route to update a project
+// Update project route
 router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         const project = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -143,25 +129,17 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
             return res.status(404).json({
                 status: 'error',
                 message: 'Project not found',
-                data: null,
             });
         }
 
-        // Check if an image file is uploaded and update the project
+        // Handle uploaded image
         if (req.file) {
-            try {
-                // Delete the old image file
-                const oldImagePath = path.join(__dirname, '..', '..', 'public', 'uploads', 'projects', 'images', path.basename(project.image));
+            const oldImagePath = path.join(basePath, path.basename(project.image));
+            // Delete old image if it exists
+            if (fs.existsSync(oldImagePath)) {
                 fs.unlinkSync(oldImagePath);
-            } catch (err: any) {
-                if (err.code !== 'ENOENT') {
-                    // If the error is not "file not found", log the error and continue
-                    console.error('Error deleting old image file:', err);
-                }
             }
-
-            // Save the new image file
-            project.image = `/uploads/projects/images/${req.file.filename}`;
+            project.image = `${basePath}/${req.file.filename}`;
         }
 
         // Save the updated project
@@ -173,12 +151,12 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image}`, // Return the image URL
+                image: `${req.protocol}://${req.get('host')}${project.image}`,
             },
             message: 'Project updated successfully',
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error updating project:', error);
         res.status(500).json({ error: 'Error updating project' });
     }
 });
