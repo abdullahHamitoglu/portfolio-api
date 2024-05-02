@@ -25,10 +25,10 @@ const fs_1 = __importDefault(require("fs"));
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         // Specify the destination directory for file uploads
-        cb(null, process.cwd() + 'public/uploads/projects/images');
+        cb(null, process.cwd() + '/public/uploads/projects/images');
         // Create the directory if it doesn't exist
-        if (!fs_1.default.existsSync(process.cwd() + 'public/uploads/projects/images')) {
-            fs_1.default.mkdirSync(process.cwd() + 'public/uploads/projects/images', { recursive: true });
+        if (!fs_1.default.existsSync(process.cwd() + '/public/uploads/projects/images')) {
+            fs_1.default.mkdirSync(process.cwd() + '/public/uploads/projects/images', { recursive: true });
         }
     },
     filename: (req, file, cb) => {
