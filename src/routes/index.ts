@@ -11,5 +11,8 @@ router.use('/', UsersRoutes);
 router.use('/auth', AuthRoutes);
 router.use('/projects', ProjectRoutes);
 router.use('/skills', SkillsRouter);
+router.use((req, res) => {
+    res.status(404).send('Not found');
+});
 
 export const MainRouter: Router = router;
