@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use('/api', MainRouter);
 app.use(express.static(path.resolve('./public')));
-app.use(express.static(path.resolve('/tmp')));
+// app.use(express.static(path.resolve('/tmp')));
 app.use('/', (req, res) => {
   res.sendFile(path.resolve('./public/index.html'));
 });
