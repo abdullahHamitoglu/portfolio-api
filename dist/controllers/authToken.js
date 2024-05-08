@@ -20,7 +20,11 @@ const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     const authHeader = req.headers.authorization;
     // Check if authorization header is missing
     if (!authHeader) {
-        res.status(401).json({ error: 'Authorization header missing' });
+        res.status(401).json({
+            status: 'error',
+            data: null,
+            message: 'Authorization header missing'
+        });
         return;
     }
     const token = authHeader.split(' ')[1];

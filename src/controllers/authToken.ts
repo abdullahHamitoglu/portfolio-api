@@ -9,7 +9,11 @@ export const authenticateToken: (req: Request & { user?: IUser }, res: Response,
 
     // Check if authorization header is missing
     if (!authHeader) {
-        res.status(401).json({ error: 'Authorization header missing' });
+        res.status(401).json({
+            status: 'error',
+            data: null,
+            message: 'Authorization header missing'
+        });
         return;
     }
 
@@ -39,7 +43,7 @@ export const authenticateToken: (req: Request & { user?: IUser }, res: Response,
         // Attach user data to req object and continue to next handler
         req.user = user;
         next(); // Proceed to the next middleware/route handler
-        
+
     } catch (error) {
         console.error('Error verifying token:', error);
         res.status(403).json({

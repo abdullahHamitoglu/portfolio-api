@@ -10,20 +10,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Set base path for uploads based on environment
-let basePath;
-if (process.env.PROD) {
-    basePath = '/var/task/uploads/projects/images';
-} else if (process.env.SERVERLESS) {
-    // Use /tmp for serverless environments like AWS Lambda
-    basePath = '/tmp/uploads/projects/images';
-} else {
-    basePath = process.cwd() + '/uploads/projects/images';
-}
+const basePath = path.join(__dirname, '../../public/uploads/projects/images');
 
 // Ensure the directory exists
-if (!fs.existsSync(basePath)) {
-    fs.mkdirSync(basePath, { recursive: true });
-}
+fs.mkdirSync(basePath, { recursive: true });
 
 // Configure storage for multer
 const storage = multer.diskStorage({
@@ -54,7 +44,7 @@ router.get('/', async (req, res) => {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image}`, // Return full image URL
+                image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`, // Return full image URL
             })),
             message: 'Projects fetched successfully',
         });
@@ -72,19 +62,19 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
 
         // Handle image file upload
         if (req.file) {
-            project.image = `${basePath}/${req.file.filename}`;
+            project.image = `/public/uploads/projects/images/${req.file.filename}`;
         }
 
         // Save the project to the database
         await project.save();
-
+        console.log(project.image);
         res.json({
             status: 'success',
             result: {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image}`,
+                image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`,
             },
             message: 'Project created successfully',
         });
@@ -144,14 +134,13 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
 
         // Save the updated project
         await project.save();
-
         res.json({
             status: 'success',
             data: {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image}`,
+                image: `${req.protocol}://${req.get('host')}${project.image.replace('public', '')}`,
             },
             message: 'Project updated successfully',
         });
@@ -178,7 +167,7 @@ router.get('/:id', async (req, res) => {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image}`,
+                image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`,
             },
             message: 'Project fetched successfully',
         });
@@ -189,6 +178,10 @@ router.get('/:id', async (req, res) => {
 });
 // delete all projects 
 router.delete('/', authenticateToken, async (req, res) => {
+    // delete all projects images
+    fs.readdirSync(basePath).forEach((file) => {
+        fs.unlinkSync(path.join(basePath, file));
+    });
     try {
         await Project.deleteMany({});
         res.json({
@@ -207,7 +200,14 @@ router.get('/search/:query', authenticateToken, async (req, res) => {
         const projects = await Project.find({ $text: { $search: query } });
         res.json({
             status: 'success',
-            data: projects,
+            data: {
+                projects: projects.map((project) => ({
+                    id: project._id,
+                    title: project.title,
+                    description: project.description,
+                    image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`,
+                })),
+            },
             message: 'Projects fetched successfully',
         });
     } catch (error) {
