@@ -35,9 +35,15 @@ const projectSchema = new mongoose_1.Schema({
         required: false,
         unique: false,
     },
-    image: {
+    background: {
         type: String,
+        required: true,
+        unique: false,
+    },
+    images: {
+        type: [String],
         required: false,
+        unique: false,
     },
 });
 // Create a model using the schema

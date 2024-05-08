@@ -3,7 +3,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IProject extends Document {
     title: string;
     description: string;
-    image: string;
+    background: string;
+    images: string[];
 }
 
 const projectSchema = new Schema({
@@ -17,9 +18,15 @@ const projectSchema = new Schema({
         required: false,
         unique: false,
     },
-    image: {
+    background: {
         type: String,
+        required: true,
+        unique: false,
+    },
+    images: {
+        type: [String],
         required: false,
+        unique: false,
     },
 });
 

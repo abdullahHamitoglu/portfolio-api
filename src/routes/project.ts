@@ -44,7 +44,8 @@ router.get('/', async (req, res) => {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`, // Return full image URL
+                background: `${req.protocol}://${req.get('host')}${project.background.replace('/public', '')}`, // Return full image URL
+                images: project.images.map((image) => (`${req.protocol}://${req.get('host')}${image.replace('/public', '')}`)),
             })),
             message: 'Projects fetched successfully',
         });
@@ -55,26 +56,34 @@ router.get('/', async (req, res) => {
 });
 
 // Route to create a new project
-router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
+router.post('/', authenticateToken, upload.fields([{ name: 'images', maxCount: 10 }, { name: 'background', maxCount: 1 }]), async (req, res) => {
     try {
         // Create a new project instance using the request body data
         const project = new Project(req.body);
-
         // Handle image file upload
-        if (req.file) {
-            project.image = `/public/uploads/projects/images/${req.file.filename}`;
+
+        if (req.files && 'images' in req.files) {
+            const imageFiles = (req.files as { [fieldname: string]: Express.Multer.File[] })['images'];
+            project.images = imageFiles.map(file => `/public/uploads/projects/images/${file.filename}`);
         }
 
-        // Save the project to the database
+        if (req.files && 'background' in req.files) {
+            const backgroundFiles = req.files['background'] as Express.Multer.File[];
+            if (backgroundFiles.length > 0) {
+                const backgroundFile = backgroundFiles[0]; // Assuming only one file per field
+                project.background = `/public/uploads/projects/images/${backgroundFile.filename}`;
+            }
+        }
+
         await project.save();
-        console.log(project.image);
         res.json({
             status: 'success',
             result: {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`,
+                background: `${req.protocol}://${req.get('host')}${project.background.replace('/public', '')}`,
+                images: project.images.map((image) => (`${req.protocol}://${req.get('host')}${image.replace('/public', '')}`)),
             },
             message: 'Project created successfully',
         });
@@ -92,6 +101,16 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const project = await Project.findByIdAndDelete(req.params.id);
+        // delete images from the filesystem
+        project.images.forEach((image) => {
+            const fullPath = path.join(__dirname, '../../', image); // Adjust the path as necessary
+            fs.unlinkSync(fullPath);
+        });
+        // delete background image from the filesystem
+        if (project.background) {
+            const backgroundPath = path.join(__dirname, '../../', project.background); // Adjust the path as necessary
+            fs.unlinkSync(backgroundPath);
+        }
         if (!project) {
             return res.status(404).json({
                 status: 'error',
@@ -111,7 +130,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // Update project route
-router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
+router.put('/:id', authenticateToken, upload.fields([{ name: 'images', maxCount: 10 }, { name: 'background', maxCount: 1 }]), async (req, res) => {
     try {
         const project = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
@@ -121,17 +140,24 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
                 message: 'Project not found',
             });
         }
+        // remove old images from the filesystem
+        project.images.forEach((image) => {
+            const fullPath = path.join(__dirname, '../../', image); // Adjust the path as necessary
+            fs.unlinkSync(fullPath);
+        });
 
         // Handle uploaded image
-        if (req.file) {
-            const oldImagePath = path.join(basePath, path.basename(project.image));
-            // Delete old image if it exists
-            if (fs.existsSync(oldImagePath)) {
-                fs.unlinkSync(oldImagePath);
-            }
-            project.image = `${basePath}/${req.file.filename}`;
+        if (req.files && 'images' in req.files) {
+            const imageFiles = (req.files as { [fieldname: string]: Express.Multer.File[] })['images'];
+            project.images = imageFiles.map(file => `/public/uploads/projects/images/${file.filename}`);
         }
-
+        if (req.files && 'background' in req.files) {
+            const backgroundFiles = req.files['background'] as Express.Multer.File[];
+            if (backgroundFiles.length > 0) {
+                const backgroundFile = backgroundFiles[0]; // Assuming only one file per field
+                project.background = `/public/uploads/projects/images/${backgroundFile.filename}`;
+            }
+        }
         // Save the updated project
         await project.save();
         res.json({
@@ -140,7 +166,8 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image.replace('public', '')}`,
+                background: `${req.protocol}://${req.get('host')}${project.background.replace('public', '')}`,
+                images: project.images.map((image) => (`${req.protocol}://${req.get('host')}${image.replace('/public', '')}`)),
             },
             message: 'Project updated successfully',
         });
@@ -167,7 +194,8 @@ router.get('/:id', async (req, res) => {
                 id: project._id,
                 title: project.title,
                 description: project.description,
-                image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`,
+                background: `${req.protocol}://${req.get('host')}${project.background.replace('/public', '')}`,
+                images: project.images.map((image) => (`${req.protocol}://${req.get('host')}${image.replace('/public', '')}`)),
             },
             message: 'Project fetched successfully',
         });
@@ -182,6 +210,14 @@ router.delete('/', authenticateToken, async (req, res) => {
     fs.readdirSync(basePath).forEach((file) => {
         fs.unlinkSync(path.join(basePath, file));
     });
+    const projects = await Project.find();
+    if (projects.length <= 0) {
+        return res.status(401).json({
+            status: 'error',
+            error: 'No projects to delete',
+            message: 'No projects to delete',
+        });
+    }
     try {
         await Project.deleteMany({});
         res.json({
@@ -191,7 +227,11 @@ router.delete('/', authenticateToken, async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error deleting projects' });
+        res.status(500).json({
+            status: 'error',
+            error: 'Error deleting projects',
+            message: 'Error deleting projects',
+        });
     }
 });
 router.get('/search/:query', authenticateToken, async (req, res) => {
@@ -205,7 +245,8 @@ router.get('/search/:query', authenticateToken, async (req, res) => {
                     id: project._id,
                     title: project.title,
                     description: project.description,
-                    image: `${req.protocol}://${req.get('host')}${project.image.replace('/public', '')}`,
+                    background: `${req.protocol}://${req.get('host')}${project.background.replace('/public', '')}`,
+                    images: project.images.map((image) => (`${req.protocol}://${req.get('host')}${image.replace('/public', '')}`)),
                 })),
             },
             message: 'Projects fetched successfully',
