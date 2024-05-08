@@ -23,8 +23,8 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   next();
 });
-
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/api', MainRouter);
 app.use(express.static(path.resolve('./public')));
 app.use('/', (req, res) => {

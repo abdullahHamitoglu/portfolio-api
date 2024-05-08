@@ -26,6 +26,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
 app.use('/api', routes_1.MainRouter);
 app.use(express_1.default.static(path_1.default.resolve('./public')));
 app.use('/', (req, res) => {
