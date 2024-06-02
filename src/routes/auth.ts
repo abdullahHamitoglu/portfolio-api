@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import express, { Router } from "express";
+import { validationResult, check } from 'express-validator';
 import User, { IUser } from "../database/models/User";
 import { authenticateToken, secretKey } from '../controllers/authToken';
 import nodemailer from 'nodemailer';
@@ -7,9 +8,17 @@ import nodemailer from 'nodemailer';
 const router: Router = Router();
 
 // login 
-router.post('/login', async (req: express.Request<{}, any, IUser>, res) => {
+router.post('/login', [
+    check('email').notEmpty().withMessage('email is required'),
+    check('password').notEmpty().withMessage('Password is required')
+], async (req: express.Request<{}, any, IUser>, res: express.Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
-        const user = await User.findOne({ username: req.body.username });
+        const user = await User.findOne({ email: req.body.email });
+
         // validation 
         if (!user) {
             return res.status(404).json({
@@ -22,7 +31,7 @@ router.post('/login', async (req: express.Request<{}, any, IUser>, res) => {
             return res.status(401).json({
                 status: 'error',
                 message: 'Invalid password',
-                data: null,
+                user: null,
             });
         }
         const token = jwt.sign({ userId: user._id }, secretKey, {
@@ -31,9 +40,9 @@ router.post('/login', async (req: express.Request<{}, any, IUser>, res) => {
 
         res.json({
             status: 'success',
-            data: {
-                username: user.username,
+            user: {
                 email: user.email,
+                name: user.name,
                 token
             },
             message: 'User logged in successfully',
@@ -44,7 +53,13 @@ router.post('/login', async (req: express.Request<{}, any, IUser>, res) => {
     }
 });
 // reset password 
-router.post('/send-reset-password', async (req: express.Request<{}, any, { email: string }>, res) => {
+router.post('/send-reset-password', [
+    check('email').isEmail().withMessage('Valid email is required')
+], async (req: express.Request<{}, any, { email: string }>, res: express.Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const user = await User.findOne({ email: req.query.email });
         // validation 
@@ -52,14 +67,14 @@ router.post('/send-reset-password', async (req: express.Request<{}, any, { email
             return res.status(404).json({
                 status: 'error',
                 message: 'User not found',
-                data: null,
+                user: null,
             });
         }
         if (!user.email) {
             return res.status(401).json({
                 status: 'error',
                 message: 'Email is required',
-                data: null,
+                user: null,
             });
         }
         const token = jwt.sign({ email: user.email }, secretKey, {
@@ -85,13 +100,13 @@ router.post('/send-reset-password', async (req: express.Request<{}, any, { email
                 return res.status(500).json({
                     error: 'Error sending email',
                     message: 'Error sending email',
-                    data: null,
+                    user: null,
                 });
             }
             res.json({
                 status: 'success',
                 message: 'Email sent successfully',
-                data: {
+                user: {
                     username: user.username,
                     email: user.email,
                     token,
@@ -107,168 +122,109 @@ router.post('/send-reset-password', async (req: express.Request<{}, any, { email
         });
     }
 });
+
+// Other routes...
 // reset password
-router.post(
-    '/reset-password',
-    async (
-        req: any,
-        res
-    ) => {
-        try {
-            // validation 
-            if (!req.query.token) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'Token is required',
-                    data: null,
-                });
-            }
-            if (jwt.verify(req.query.token, secretKey)) {
-                const decoded = jwt.verify(req.query.token, secretKey) as { email: string };
-                const user = await User.findOne({ email: decoded.email });
-                // validation 
-                if (!user) {
-                    return res.status(404).json({
-                        status: 'error',
-                        message: 'User not found',
-                        data: null,
-                    });
-                }
-                if (decoded.email !== user.email) {
-                    return res.status(401).json({
-                        status: 'error',
-                        message: 'Invalid token',
-                        data: null,
-                    });
-                }
-                if (user.password === req.query.new_password) {
-                    return res.status(401).json({
-                        status: 'error',
-                        message: 'New password cannot be the same as the old password',
-                        data: null,
-                    });
-                }
-                if (req.query.new_password.length < 8) {
-                    return res.status(401).json({
-                        status: 'error',
-                        message: 'New password must be at least 8 characters long',
-                        data: null,
-                    });
-                }
-                if (req.query.new_password.length > 72) {
-                    return res.status(401).json({
-                        status: 'error',
-                        message: 'New password must be at most 72 characters long',
-                        data: null,
-                    });
-                }
-                if (req.query.new_password.includes(user.password)) {
-                    return res.status(401).json({
-                        status: 'error',
-                        message: 'New password cannot be the same as the old password',
-                        data: null,
-                    });
-                }
-                user.password = req.query.new_password;
-                await user.save();
-                res.json({
-                    status: 'success',
-                    message: 'Password changed successfully',
-                    data: {
-                        username: user.username,
-                        email: user.email,
-                    },
-                });
-            }
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({
-                error: 'Error changing password',
-                message: 'Error changing password',
+router.post('/reset-password', [
+    check('token').notEmpty().withMessage('Token is required'),
+], async (req: express.Request<{}, any, {
+    new_password: string; token: string 
+}, { new_password: string, token: string }>, res: express.Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        
+        const decoded = jwt.verify(req.body.token, secretKey) as { email: string };
+
+        const user = await User.findOne({ email: decoded.email });
+        
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
                 data: null,
             });
         }
+        if (decoded.email !== user.email) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Invalid token',
+                user: null,
+            });
+        }
+        user.password = req.body.new_password;
+        await user.save();
+        res.json({
+            status: 'success',
+            message: 'Password changed successfully',
+            user: {
+                username: user.username,
+                email: user.email,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Error changing password',
+            message: error.toString(),
+            user: null,
+        });
     }
-);
+});
+
 // change password
-router.put(
-    '/change-password',
-    authenticateToken,
-    async (
-        req:
-            express.Request<{},
-                any,
-                {
-                    user_id: string,
-                    password: string,
-                    new_password: string,
-                    confirm_password: string
-                }
-            >,
-        res
-    ) => {
-        try {
-            const user = await User.findById(req.body.user_id);
-            // validation 
-            if (!user) {
-                return res.status(404).json({
-                    status: 'error',
-                    message: 'User not found',
-                    data: null,
-                });
-            }
-            if (user.password !== req.body.password) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'Invalid password',
-                    data: null,
-                });
-            }
-            if (req.body.new_password !== req.body.confirm_password) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password and confirm password do not match',
-                    data: null,
-                });
-            }
-            if (req.body.new_password.length < 8) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password must be at least 8 characters long',
-                    data: null,
-                });
-            }
-            if (req.body.new_password.length > 72) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password must be at most 72 characters long',
-                    data: null,
-                });
-            }
-            if (req.body.new_password.includes(req.body.password)) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password cannot be the same as the old password',
-                    data: null,
-                });
-            }
-            user.password = req.body.new_password;
-            await user.save();
-            res.json({
-                status: 'success',
-                message: 'Password changed successfully',
-                data: null,
-            });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({
-                message: 'Error changing password',
-                error: error.message ? error.message : error.toString(),
-                data: null,
+router.put('/change-password', authenticateToken, [
+    check('user_id').notEmpty().withMessage('User ID is required'),
+    check('password').notEmpty().withMessage('Password is required'),
+    check('new_password').isLength({ min: 8, max: 72 }).withMessage('New password must be between 8 and 72 characters long'),
+    check('confirm_password').custom((value, { req }) => {
+        if (value !== req.body.new_password) {
+            throw new Error('New password and confirm password do not match');
+        }
+        return true;
+    })
+], async (req: express.Request<{}, any, { user_id: string, password: string, new_password: string, confirm_password: string }>, res: express.Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const user = await User.findById(req.body.user_id);
+        // validation 
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
             });
         }
+        if (user.password !== req.body.password) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Invalid password',
+                user: null,
+            });
+        }
+        // Additional validation checks for new password here...
+
+        user.password = req.body.new_password;
+        await user.save();
+        res.json({
+            status: 'success',
+            message: 'Password changed successfully',
+            user: null,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: 'Error changing password',
+            error: error.message ? error.message : error.toString(),
+            user: null,
+        });
     }
-);
+});
 
 export const AuthRoutes = router;
 

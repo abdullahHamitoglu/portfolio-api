@@ -16,34 +16,65 @@ exports.SkillsRouter = void 0;
 const express_1 = require("express");
 const Skills_1 = __importDefault(require("../database/models/Skills"));
 const authToken_1 = require("../controllers/authToken");
+const express_validator_1 = require("express-validator");
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const handleValidationErrors_1 = require("../controllers/handleValidationErrors");
+// Set base path for uploads based on environment
+const basePath = path_1.default.join(__dirname, '../../public/uploads/skills/images');
+// Ensure the directory exists
+fs_1.default.mkdirSync(basePath, { recursive: true });
+// Configure storage for multer
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        // Specify the destination directory for file uploads
+        cb(null, basePath);
+    },
+    filename: (req, file, cb) => {
+        // Specify the filename for the uploaded file
+        const ext = path_1.default.extname(file.originalname);
+        const filename = `${Date.now()}${ext}`;
+        cb(null, filename);
+    },
+});
+// Initialize multer with the storage configuration
+const upload = (0, multer_1.default)({ storage });
 const router = (0, express_1.Router)();
-// create skill 
-router.post("/", authToken_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
+// Create skill route
+router.post('/', authToken_1.authenticateToken, upload.fields([{ name: 'image', maxCount: 1 }]), [
+    (0, express_validator_1.check)('title').notEmpty().withMessage('Title is required'),
+], handleValidationErrors_1.HandleValidationErrors, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!req.body.title) {
-            res.status(401).json({
-                status: 'error',
-                message: 'title is required',
-                data: null,
-            });
-        }
         const skill = new Skills_1.default(req.body);
+        // save image to storage
+        if (req.files && 'image' in req.files) {
+            const image = req.files['image'];
+            if (image.length > 0) {
+                const imageFile = image[0]; // Assuming only one file per field
+                skill.image = `/uploads/skills/images/${imageFile.filename}`;
+            }
+        }
         yield skill.save();
         res.json({
             status: "success",
             result: {
                 id: skill._id,
                 title: skill.title,
+                image: skill.image ? `${req.protocol}://${req.get('host')}${skill.image}` : null,
             },
             message: "Skill created successfully",
         });
     }
     catch (error) {
-        console.log(error);
+        console.error('Error creating skill:', error);
+        res.status(500).json({
+            status: 'error',
+            error: 'Error creating skill',
+        });
     }
 }));
-// get all skills
+// Get all skills
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const skills = yield Skills_1.default.find();
     res.json({
@@ -51,19 +82,21 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         data: skills.map(skill => ({
             id: skill._id,
             title: skill.title,
+            image: skill.image ? `${req.protocol}://${req.get('host')}${skill.image}` : null,
         })),
         message: "Skills fetched successfully",
     });
 }));
-// get skill by id
+// Get skill by id
 router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const skill = yield Skills_1.default.findById(req.params.id);
     res.json({
         status: "success",
         data: skill,
+        message: "Skill fetched successfully",
     });
 }));
-// delete skill by id
+// Delete skill by id
 router.delete("/:id", authToken_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const skill = yield Skills_1.default.findByIdAndDelete(req.params.id);
     res.json({
@@ -71,11 +104,12 @@ router.delete("/:id", authToken_1.authenticateToken, (req, res) => __awaiter(voi
         data: {
             id: skill._id,
             title: skill.title,
+            image: skill.image ? `${req.protocol}://${req.get('host')}${skill.image}` : null,
         },
         message: "Skill deleted successfully",
     });
 }));
-// update skill by id
+// Update skill by id
 router.put("/:id", authToken_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const skill = yield Skills_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({
@@ -83,6 +117,7 @@ router.put("/:id", authToken_1.authenticateToken, (req, res) => __awaiter(void 0
         data: {
             id: skill._id,
             title: skill.title,
+            image: skill.image ? `${req.protocol}://${req.get('host')}${skill.image}` : null,
         },
     });
 }));

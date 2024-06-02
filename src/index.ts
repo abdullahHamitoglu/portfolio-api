@@ -1,13 +1,16 @@
 import express from 'express';
 import { MainRouter } from './routes';
-import path from 'path';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import bodyParser from 'body-parser';
 dotenv.config();
 
-import './database'; // initialize database
+// initialize database
+import './database';
 
 const app = express();
+
+//cors options 
 const corsOptions = {
   origin: '*', // You can specify specific origins if needed
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
@@ -23,13 +26,10 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   next();
 });
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/api', MainRouter);
-app.use(express.static(path.resolve('./public')));
-app.use('/', (req, res) => {
-  res.sendFile(path.resolve('./public/index.html'));
-});
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use('', MainRouter);
 const port = process.env.PORT || 3000;
 // Start server
 app.listen(port, () => {

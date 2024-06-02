@@ -20,7 +20,7 @@ const projectSchema = new Schema({
     },
     background: {
         type: String,
-        required: true,
+        required: false,
         unique: false,
     },
     images: {

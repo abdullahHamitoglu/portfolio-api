@@ -15,14 +15,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthRoutes = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_1 = require("express");
+const express_validator_1 = require("express-validator");
 const User_1 = __importDefault(require("../database/models/User"));
 const authToken_1 = require("../controllers/authToken");
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const router = (0, express_1.Router)();
 // login 
-router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/login', [
+    (0, express_validator_1.check)('email').notEmpty().withMessage('email is required'),
+    (0, express_validator_1.check)('password').notEmpty().withMessage('Password is required')
+], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
-        const user = yield User_1.default.findOne({ username: req.body.username });
+        const user = yield User_1.default.findOne({ email: req.body.email });
         // validation 
         if (!user) {
             return res.status(404).json({
@@ -35,7 +43,7 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
             return res.status(401).json({
                 status: 'error',
                 message: 'Invalid password',
-                data: null,
+                user: null,
             });
         }
         const token = jsonwebtoken_1.default.sign({ userId: user._id }, authToken_1.secretKey, {
@@ -43,9 +51,9 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         });
         res.json({
             status: 'success',
-            data: {
-                username: user.username,
+            user: {
                 email: user.email,
+                name: user.name,
                 token
             },
             message: 'User logged in successfully',
@@ -57,7 +65,13 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 }));
 // reset password 
-router.post('/send-reset-password', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/send-reset-password', [
+    (0, express_validator_1.check)('email').isEmail().withMessage('Valid email is required')
+], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     try {
         const user = yield User_1.default.findOne({ email: req.query.email });
         // validation 
@@ -65,14 +79,14 @@ router.post('/send-reset-password', (req, res) => __awaiter(void 0, void 0, void
             return res.status(404).json({
                 status: 'error',
                 message: 'User not found',
-                data: null,
+                user: null,
             });
         }
         if (!user.email) {
             return res.status(401).json({
                 status: 'error',
                 message: 'Email is required',
-                data: null,
+                user: null,
             });
         }
         const token = jsonwebtoken_1.default.sign({ email: user.email }, authToken_1.secretKey, {
@@ -98,13 +112,13 @@ router.post('/send-reset-password', (req, res) => __awaiter(void 0, void 0, void
                 return res.status(500).json({
                     error: 'Error sending email',
                     message: 'Error sending email',
-                    data: null,
+                    user: null,
                 });
             }
             res.json({
                 status: 'success',
                 message: 'Email sent successfully',
-                data: {
+                user: {
                     username: user.username,
                     email: user.email,
                     token,
@@ -121,89 +135,18 @@ router.post('/send-reset-password', (req, res) => __awaiter(void 0, void 0, void
         });
     }
 }));
+// Other routes...
 // reset password
-router.post('/reset-password', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // validation 
-        if (!req.query.token) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'Token is required',
-                data: null,
-            });
-        }
-        if (jsonwebtoken_1.default.verify(req.query.token, authToken_1.secretKey)) {
-            const decoded = jsonwebtoken_1.default.verify(req.query.token, authToken_1.secretKey);
-            const user = yield User_1.default.findOne({ email: decoded.email });
-            // validation 
-            if (!user) {
-                return res.status(404).json({
-                    status: 'error',
-                    message: 'User not found',
-                    data: null,
-                });
-            }
-            if (decoded.email !== user.email) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'Invalid token',
-                    data: null,
-                });
-            }
-            if (user.password === req.query.new_password) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password cannot be the same as the old password',
-                    data: null,
-                });
-            }
-            if (req.query.new_password.length < 8) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password must be at least 8 characters long',
-                    data: null,
-                });
-            }
-            if (req.query.new_password.length > 72) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password must be at most 72 characters long',
-                    data: null,
-                });
-            }
-            if (req.query.new_password.includes(user.password)) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'New password cannot be the same as the old password',
-                    data: null,
-                });
-            }
-            user.password = req.query.new_password;
-            yield user.save();
-            res.json({
-                status: 'success',
-                message: 'Password changed successfully',
-                data: {
-                    username: user.username,
-                    email: user.email,
-                },
-            });
-        }
+router.post('/reset-password', [
+    (0, express_validator_1.check)('token').notEmpty().withMessage('Token is required'),
+], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({
-            error: 'Error changing password',
-            message: 'Error changing password',
-            data: null,
-        });
-    }
-}));
-// change password
-router.put('/change-password', authToken_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.default.findById(req.body.user_id);
-        // validation 
+        const decoded = jsonwebtoken_1.default.verify(req.body.token, authToken_1.secretKey);
+        const user = yield User_1.default.findOne({ email: decoded.email });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -211,39 +154,11 @@ router.put('/change-password', authToken_1.authenticateToken, (req, res) => __aw
                 data: null,
             });
         }
-        if (user.password !== req.body.password) {
+        if (decoded.email !== user.email) {
             return res.status(401).json({
                 status: 'error',
-                message: 'Invalid password',
-                data: null,
-            });
-        }
-        if (req.body.new_password !== req.body.confirm_password) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'New password and confirm password do not match',
-                data: null,
-            });
-        }
-        if (req.body.new_password.length < 8) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'New password must be at least 8 characters long',
-                data: null,
-            });
-        }
-        if (req.body.new_password.length > 72) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'New password must be at most 72 characters long',
-                data: null,
-            });
-        }
-        if (req.body.new_password.includes(req.body.password)) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'New password cannot be the same as the old password',
-                data: null,
+                message: 'Invalid token',
+                user: null,
             });
         }
         user.password = req.body.new_password;
@@ -251,7 +166,61 @@ router.put('/change-password', authToken_1.authenticateToken, (req, res) => __aw
         res.json({
             status: 'success',
             message: 'Password changed successfully',
-            data: null,
+            user: {
+                username: user.username,
+                email: user.email,
+            },
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Error changing password',
+            message: error.toString(),
+            user: null,
+        });
+    }
+}));
+// change password
+router.put('/change-password', authToken_1.authenticateToken, [
+    (0, express_validator_1.check)('user_id').notEmpty().withMessage('User ID is required'),
+    (0, express_validator_1.check)('password').notEmpty().withMessage('Password is required'),
+    (0, express_validator_1.check)('new_password').isLength({ min: 8, max: 72 }).withMessage('New password must be between 8 and 72 characters long'),
+    (0, express_validator_1.check)('confirm_password').custom((value, { req }) => {
+        if (value !== req.body.new_password) {
+            throw new Error('New password and confirm password do not match');
+        }
+        return true;
+    })
+], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const user = yield User_1.default.findById(req.body.user_id);
+        // validation 
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        if (user.password !== req.body.password) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Invalid password',
+                user: null,
+            });
+        }
+        // Additional validation checks for new password here...
+        user.password = req.body.new_password;
+        yield user.save();
+        res.json({
+            status: 'success',
+            message: 'Password changed successfully',
+            user: null,
         });
     }
     catch (error) {
@@ -259,7 +228,7 @@ router.put('/change-password', authToken_1.authenticateToken, (req, res) => __aw
         res.status(500).json({
             message: 'Error changing password',
             error: error.message ? error.message : error.toString(),
-            data: null,
+            user: null,
         });
     }
 }));

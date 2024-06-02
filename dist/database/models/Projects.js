@@ -37,7 +37,7 @@ const projectSchema = new mongoose_1.Schema({
     },
     background: {
         type: String,
-        required: true,
+        required: false,
         unique: false,
     },
     images: {

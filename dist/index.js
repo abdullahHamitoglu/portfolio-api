@@ -5,12 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const routes_1 = require("./routes");
-const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
+const body_parser_1 = __importDefault(require("body-parser"));
 dotenv_1.default.config();
-require("./database"); // initialize database
+// initialize database
+require("./database");
 const app = (0, express_1.default)();
+//cors options 
 const corsOptions = {
     origin: '*', // You can specify specific origins if needed
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
@@ -25,13 +27,9 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     next();
 });
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use('/api', routes_1.MainRouter);
-app.use(express_1.default.static(path_1.default.resolve('./public')));
-app.use('/', (req, res) => {
-    res.sendFile(path_1.default.resolve('./public/index.html'));
-});
+app.use(body_parser_1.default.json());
+app.use(body_parser_1.default.urlencoded({ extended: true }));
+app.use('', routes_1.MainRouter);
 const port = process.env.PORT || 3000;
 // Start server
 app.listen(port, () => {
