@@ -5,6 +5,8 @@ import { authenticateToken, secretKey } from '../controllers/authToken';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { HandleValidationErrors } from "../controllers/handleValidationErrors";
+import { check } from 'express-validator';
 
 // Set base path for uploads based on environment
 const basePath = path.join(__dirname, '../../public/uploads/users/images');
@@ -69,48 +71,46 @@ router.get('/users', async (req, res) => {
     }
 });
 
-router.post('/user/create', async (req: express.Request<{}, any, IUser>, res) => {
+router.post('/user/create',
+    [
+        check('email').isEmail().withMessage('Valid email is required'),
+        check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    ],
+    HandleValidationErrors,
+    async (req: express.Request<{}, any, IUser>, res: Response) => {
 
-    try {
-        const users = await User.find();
-        const user = new User({
-            email: req.body.email,
-            password: req.body.password,
-        });
-        // not create same users
-        if (users.some(u => u.username === user.username)) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Username already exists',
-                data: null,
+        try {
+            const users = await User.find();
+            const user = new User({
+                email: req.body.email,
+                password: req.body.password,
             });
-        }
-        if (users.some(u => u.email === user.email)) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Email already exists',
-                data: null,
+            if (users.some(u => u.email === user.email)) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Email already exists',
+                    data: null,
+                });
+            }
+            // Generate token with user ID
+            const token = jwt.sign({ userId: user._id }, secretKey, {
+                expiresIn: '24h',
             });
-        }
-        // Generate token with user ID
-        const token = jwt.sign({ userId: user._id }, secretKey, {
-            expiresIn: '24h',
-        });
 
-        await user.save();
-        res.json({
-            status: 'success',
-            user: {
-                ...userProfile(user, req),
-                token
-            },
-            message: 'User created successfully',
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error creating user' });
-    }
-});
+            await user.save();
+            res.json({
+                status: 'success',
+                user: {
+                    ...userProfile(user, req),
+                    token
+                },
+                message: 'User created successfully',
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error creating user' });
+        }
+    });
 
 // delete user 
 router.delete('/user/:id', async (req, res) => {
@@ -211,7 +211,7 @@ router.put('/contact', authenticateToken, async (req: any, res: Response) => {
             user: userProfile(user, req),
             message: 'User updated successfully',
         });
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
             status: 'error',
             user: null,

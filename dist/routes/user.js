@@ -20,6 +20,8 @@ const authToken_1 = require("../controllers/authToken");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const handleValidationErrors_1 = require("../controllers/handleValidationErrors");
+const express_validator_1 = require("express-validator");
 // Set base path for uploads based on environment
 const basePath = path_1.default.join(__dirname, '../../public/uploads/users/images');
 // Ensure the directory exists
@@ -76,21 +78,16 @@ router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ error: 'Error fetching users' });
     }
 }));
-router.post('/user/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/user/create', [
+    (0, express_validator_1.check)('email').isEmail().withMessage('Valid email is required'),
+    (0, express_validator_1.check)('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+], handleValidationErrors_1.HandleValidationErrors, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield User_1.default.find();
         const user = new User_1.default({
             email: req.body.email,
             password: req.body.password,
         });
-        // not create same users
-        if (users.some(u => u.username === user.username)) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Username already exists',
-                data: null,
-            });
-        }
         if (users.some(u => u.email === user.email)) {
             return res.status(400).json({
                 status: 'error',

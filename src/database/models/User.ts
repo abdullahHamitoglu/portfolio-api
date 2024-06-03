@@ -21,11 +21,11 @@ export interface IUser extends Document {
 const userSchema = new Schema({
     name: {
         type: String,
-        required: true,
+        required: false,
     },
     username: {
         type: String,
-        required: true,
+        required: false,
         unique: true,
     },
     email: {
