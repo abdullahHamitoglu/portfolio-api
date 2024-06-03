@@ -80,8 +80,6 @@ router.post('/user/create', (req, res) => __awaiter(void 0, void 0, void 0, func
     try {
         const users = yield User_1.default.find();
         const user = new User_1.default({
-            id: users.length + 1,
-            username: req.body.username,
             email: req.body.email,
             password: req.body.password,
         });
@@ -171,6 +169,37 @@ router.put('/profile', upload.fields([{ name: 'profilePicture', maxCount: 1 }]),
     }
     catch (error) {
         console.error(error);
+        res.status(500).json({
+            status: 'error',
+            user: null,
+            message: error.message ? error.message : error.toString(),
+        });
+    }
+}));
+// user contact info edit 
+router.put('/contact', authToken_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    req.body.updatedAt = new Date();
+    try {
+        const user = yield User_1.default.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        // Merge user data with updated fields
+        const updatedUserData = Object.assign(Object.assign({}, user.toObject()), req.body);
+        // Update user with new data
+        user.set(updatedUserData);
+        yield user.save();
+        res.json({
+            status: 'success',
+            user: userProfile(user, req),
+            message: 'User updated successfully',
+        });
+    }
+    catch (error) {
         res.status(500).json({
             status: 'error',
             user: null,

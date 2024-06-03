@@ -74,8 +74,6 @@ router.post('/user/create', async (req: express.Request<{}, any, IUser>, res) =>
     try {
         const users = await User.find();
         const user = new User({
-            id: users.length + 1,
-            username: req.body.username,
             email: req.body.email,
             password: req.body.password,
         });
@@ -184,5 +182,41 @@ router.put('/profile', upload.fields([{ name: 'profilePicture', maxCount: 1 }]),
         });
     }
 });
+// user contact info edit 
+router.put('/contact', authenticateToken, async (req: any, res: Response) => {
+    req.body.updatedAt = new Date();
+    try {
+        const user = await User.findById(req.user._id);
 
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+
+        // Merge user data with updated fields
+        const updatedUserData = {
+            ...user.toObject(),
+            ...req.body,
+        };
+
+        // Update user with new data
+        user.set(updatedUserData);
+        await user.save();
+
+        res.json({
+            status: 'success',
+            user: userProfile(user, req),
+            message: 'User updated successfully',
+        });
+    }catch(error){
+        res.status(500).json({
+            status: 'error',
+            user: null,
+            message: error.message ? error.message : error.toString(),
+        });
+    }
+})
 export const UsersRoutes: Router = router;
