@@ -8,7 +8,7 @@ import fs from 'fs';
 import { HandleValidationErrors } from "../controllers/handleValidationErrors";
 
 // Set base path for uploads based on environment
-const basePath = path.join(__dirname, '../../public/uploads/skills/images');
+const basePath = path.join(__dirname, '../../public/uploads/');
 
 // Ensure the directory exists
 
@@ -50,7 +50,7 @@ router.post(
                 const image = req.files['image'] as Express.Multer.File[];
                 if (image.length > 0) {
                     const imageFile = image[0]; // Assuming only one file per field
-                    skill.image = `/uploads/skills/images/${imageFile.filename}`;
+                    skill.image = `/public/uploads${imageFile.filename}`;
                 }
             }
 

@@ -1,13 +1,15 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IProject extends Document {
+    updatedAt: any;
+    createdAt: any;
     active: string;
     title: string;
     description: string;
     background: string;
     images: string[];
     status: string;
-    featured: string
+    featured: Boolean
 }
 
 const projectSchema = new Schema({
@@ -42,7 +44,7 @@ const projectSchema = new Schema({
         required: false,
         unique: false,
     },
-    ceratedAt: {
+    createdAt: {
         type: Date,
         default: new Date(),
     },

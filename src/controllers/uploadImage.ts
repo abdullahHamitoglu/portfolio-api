@@ -18,7 +18,7 @@ export const uploadImages = async (req: any, res: Response) => {
             }
         });
     });
-    const uploadedFiles = files.map((file: Express.Multer.File) => `${req.protocol}://${req.get('host')}/uploads/${file.filename}`);
+    const uploadedFiles = files.map((file: Express.Multer.File) => `${req.protocol}://${req.get('host')}/public/uploads/${file.filename}`);
     // Send an appropriate response to the client
     res.status(200).json({
         message: 'File upload successful',
@@ -29,9 +29,16 @@ export const uploadImages = async (req: any, res: Response) => {
 
 // remove images and background from /uploads 
 export const removeImages = async (req: any, res: Response, next: any) => {
-    const files = fs.readdirSync(path.join(__dirname, '../uploads'));
-    files.forEach((file) => {
-        fs.unlinkSync(path.join(__dirname, '../uploads', file));
-    });
+    const files = req.files;
+    const dir = path.join(__dirname, '../../public/uploads');
+    if (!files) return next();
+    for (const file of files) {
+        fs.unlink(`${dir}/${file.filename}`, (err) => {
+            if (err) {
+                console.error(err);
+            }
+        });
+    }
+
     next()
 };

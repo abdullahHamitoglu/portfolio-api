@@ -9,7 +9,7 @@ import { HandleValidationErrors } from "../controllers/handleValidationErrors";
 import { check } from 'express-validator';
 
 // Set base path for uploads based on environment
-const basePath = path.join(__dirname, '../../public/uploads/users/images');
+const basePath = path.join(__dirname, '../../public/uploads');
 
 // Ensure the directory exists
 
@@ -159,7 +159,7 @@ router.put('/profile', upload.fields([{ name: 'profilePicture', maxCount: 1 }]),
             const image = req.files['profilePicture'] as Express.Multer.File[];
             if (image.length > 0) {
                 const imageFile = image[0]; // Assuming only one file per field
-                updatedUserData.profilePicture = `/uploads/users/images/${imageFile.filename}`;
+                updatedUserData.profilePicture = `/uploads/${imageFile.filename}`;
             }
         }
 

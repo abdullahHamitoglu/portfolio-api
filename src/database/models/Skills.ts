@@ -16,10 +16,14 @@ const skillSchema = new Schema({
         type: String,
         required: false,
     },
-    date: {
+    createdAt: {
         type: Date,
         default: Date.now,
     },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    }
 });
 
 // Create a model using the schema

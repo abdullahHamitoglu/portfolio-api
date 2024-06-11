@@ -3,6 +3,9 @@ import { authenticateToken } from "../controllers/authToken";
 import dotenv from 'dotenv';
 import { removeImages } from "../controllers/uploadImage";
 import { Request, Response } from "express";
+import fs from 'fs';
+
+import path from "path";
 
 dotenv.config();
 
@@ -13,7 +16,10 @@ const projectFields = (project: IProject) => ({
     background: project.background,
     images: project.images,
     active: project.active,
-    featured: project.featured
+    featured: project.featured,
+    status: project.status,
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt,
 })
 
 async function getAllProjects(req: Request, res: Response) {
@@ -69,7 +75,6 @@ async function createProject(req: any, res: any) {
         });
     }
 }
-
 async function updateProject(req: Request, res: Response) {
     try {
         let project = await Project.findOneAndUpdate({ id: req.body.id }, req.body, {
@@ -82,6 +87,12 @@ async function updateProject(req: Request, res: Response) {
                 status: 'error',
                 message: 'Project not found',
             });
+        }
+
+        if (req.body.images) {
+            // Add new images to the existing ones
+            project.images = [...project.images, ...req.body.images];
+            await project.save();
         }
 
         res.json({
