@@ -3,10 +3,12 @@ import multer, { Multer } from 'multer';
 import fs from 'fs';
 import path from 'path';
 
+fs.mkdirSync(path.join(__dirname, '../../public/uploads/'), { recursive: true });
+
 // Configure multer storage and file name
 const storage: multer.StorageEngine = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-    cb(null, 'public/uploads');
+    cb(null, '../../public/uploads');
   },
   filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     cb(null, Date.now() + '-' + file.originalname);
@@ -30,7 +32,7 @@ const uploadMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
     // Validate file types and sizes
     files.forEach((file: Express.Multer.File) => {
-      const allowedTypes: string[] = ['image/jpeg', 'image/png','image/svg'];
+      const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/svg'];
       const maxSize: number = 5 * 1024 * 1024; // 5MB
 
       if (!allowedTypes.includes(file.mimetype)) {
