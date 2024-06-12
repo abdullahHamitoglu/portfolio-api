@@ -3,15 +3,22 @@ import multer, { Multer } from 'multer';
 import fs from 'fs';
 import path from 'path';
 
-fs.mkdirSync(path.join(__dirname, '../../public/uploads/'), { recursive: true });
+// Determine the upload directory based on environment
+const dir: string = process.env.PROD === 'true' 
+  ? path.resolve(__dirname, process.cwd(), 'public/uploads') 
+  : path.resolve(__dirname, '../../public/uploads');
 
 // Configure multer storage and file name
 const storage: multer.StorageEngine = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-    cb(null, '../../public/uploads');
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
   },
   filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
-    cb(null, Date.now() + '-' + file.originalname);
+    cb(null, `${Date.now()}-${file.originalname}`);
   }
 });
 
@@ -31,10 +38,10 @@ const uploadMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const errors: string[] = [];
 
     // Validate file types and sizes
-    files.forEach((file: Express.Multer.File) => {
-      const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/svg'];
-      const maxSize: number = 5 * 1024 * 1024; // 5MB
+    const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/svg+xml'];
+    const maxSize: number = 5 * 1024 * 1024; // 5MB
 
+    files.forEach((file: Express.Multer.File) => {
       if (!allowedTypes.includes(file.mimetype)) {
         errors.push(`Invalid file type: ${file.originalname}`);
       }
