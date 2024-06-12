@@ -6,13 +6,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const multer_1 = __importDefault(require("multer"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-fs_1.default.mkdirSync(path_1.default.join(__dirname, '../../public/uploads/'), { recursive: true });
+const dir = process.env.PROD === 'true'
+    ? path_1.default.resolve(__dirname, process.cwd(), 'public/uploads')
+    : path_1.default.resolve(__dirname, '../../public/uploads');
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, '../../public/uploads');
+        if (!fs_1.default.existsSync(dir)) {
+            fs_1.default.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
 });
 const upload = (0, multer_1.default)({ storage: storage });
@@ -23,9 +28,9 @@ const uploadMiddleware = (req, res, next) => {
         }
         const files = req.files;
         const errors = [];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
+        const maxSize = 5 * 1024 * 1024;
         files.forEach((file) => {
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/svg'];
-            const maxSize = 5 * 1024 * 1024;
             if (!allowedTypes.includes(file.mimetype)) {
                 errors.push(`Invalid file type: ${file.originalname}`);
             }
