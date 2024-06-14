@@ -1,5 +1,4 @@
-import Project, { IProject } from "../database/models/Projects";
-import { authenticateToken } from "../controllers/authToken";
+import Project, { IProject } from "../database/models/Projects.model";
 import dotenv from 'dotenv';
 import { removeImages } from "../controllers/uploadImage";
 import { Request, Response } from "express";

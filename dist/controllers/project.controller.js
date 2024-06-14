@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchProjects = exports.deleteAllProjects = exports.deleteProject = exports.updateProject = exports.createProject = exports.getProjectById = exports.getAllProjects = void 0;
-const Projects_1 = __importDefault(require("../database/models/Projects"));
+const Projects_model_1 = __importDefault(require("../database/models/Projects.model"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const projectFields = (project) => ({
@@ -31,7 +31,7 @@ const projectFields = (project) => ({
 function getAllProjects(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const projects = yield Projects_1.default.find();
+            const projects = yield Projects_model_1.default.find();
             const projectData = projects.map((project) => (projectFields(project)));
             res.json({
                 status: 'success',
@@ -49,7 +49,7 @@ exports.getAllProjects = getAllProjects;
 function getProjectById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const project = yield Projects_1.default.findById(req.params.id);
+            const project = yield Projects_model_1.default.findById(req.params.id);
             if (!project) {
                 return res.status(404).json({
                     status: 'error',
@@ -73,7 +73,7 @@ exports.getProjectById = getProjectById;
 function createProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const project = yield Projects_1.default.create(req.body);
+            const project = yield Projects_model_1.default.create(req.body);
             res.json({
                 status: 'success',
                 project: projectFields(project),
@@ -94,7 +94,7 @@ exports.createProject = createProject;
 function updateProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let project = yield Projects_1.default.findOneAndUpdate({ id: req.body.id }, req.body, {
+            let project = yield Projects_model_1.default.findOneAndUpdate({ id: req.body.id }, req.body, {
                 new: true,
                 runValidators: true,
             });
@@ -124,7 +124,7 @@ exports.updateProject = updateProject;
 function deleteProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const project = yield Projects_1.default.findOneAndDelete({ _id: req.params.id });
+            const project = yield Projects_model_1.default.findOneAndDelete({ _id: req.params.id });
             if (!project) {
                 return res.status(404).json({
                     status: 'error',
@@ -147,7 +147,7 @@ function deleteProject(req, res) {
 exports.deleteProject = deleteProject;
 function deleteAllProjects(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const projects = yield Projects_1.default.find();
+        const projects = yield Projects_model_1.default.find();
         if (projects.length <= 0) {
             return res.status(401).json({
                 status: 'error',
@@ -156,7 +156,7 @@ function deleteAllProjects(req, res) {
             });
         }
         try {
-            yield Projects_1.default.deleteMany({});
+            yield Projects_model_1.default.deleteMany({});
             res.json({
                 status: 'success',
                 data: null,
@@ -178,7 +178,7 @@ function searchProjects(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const query = req.params.query;
-            const projects = yield Projects_1.default.find({ $text: { $search: query } });
+            const projects = yield Projects_model_1.default.find({ $text: { $search: query } });
             res.json({
                 status: 'success',
                 projects: projects.map((project) => (projectFields(project))),

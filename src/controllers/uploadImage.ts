@@ -40,5 +40,5 @@ export const removeImages = async (req: any, res: Response, next: any) => {
         });
     }
 
-    next()
+    next();
 };

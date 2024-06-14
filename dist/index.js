@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const routes_1 = require("./routes");
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
 dotenv_1.default.config();
 require("./database");
 const app = (0, express_1.default)();
@@ -18,6 +19,7 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use((0, cors_1.default)(corsOptions));
+app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
 app.use('', routes_1.MainRouter);
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
