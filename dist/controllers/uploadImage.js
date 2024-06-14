@@ -25,7 +25,7 @@ const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             }
         });
     });
-    const uploadedFiles = files.map((file) => `${req.protocol}://${req.get('host')}/public/uploads/${file.filename}`);
+    const uploadedFiles = files.map((file) => `${req.protocol}://${req.get('host')}/uploads/${file.filename}`);
     res.status(200).json({
         message: 'File upload successful',
         files: uploadedFiles,

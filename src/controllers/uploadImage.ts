@@ -18,7 +18,7 @@ export const uploadImages = async (req: any, res: Response) => {
             }
         });
     });
-    const uploadedFiles = files.map((file: Express.Multer.File) => `${req.protocol}://${req.get('host')}/public/uploads/${file.filename}`);
+    const uploadedFiles = files.map((file: Express.Multer.File) => `${req.protocol}://${req.get('host')}/uploads/${file.filename}`);
     // Send an appropriate response to the client
     res.status(200).json({
         message: 'File upload successful',
