@@ -35,7 +35,7 @@ const createSkill = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             const image = req.files['image'];
             if (image.length > 0) {
                 const imageFile = image[0];
-                skill.image = `/public/uploads${imageFile.filename}`;
+                skill.image = `/uploads/${imageFile.filename}`;
             }
         }
         yield skill.save();
