@@ -31,7 +31,7 @@ export const createSkill = async (req: Request, res: Response) => {
             const image = req.files['image'] as Express.Multer.File[];
             if (image.length > 0) {
                 const imageFile = image[0];
-                skill.image = `/public/uploads${imageFile.filename}`;
+                skill.image = `/uploads${imageFile.filename}`;
             }
         }
 
