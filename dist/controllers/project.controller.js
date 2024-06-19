@@ -33,7 +33,7 @@ function getAllProjects(req, res) {
         try {
             const { page = 1, limit = 10 } = req.query;
             const projects = yield Projects_model_1.default.find({
-                status: 'active',
+                status: req.query.status || 'active',
                 featured: req.query.featured,
             })
                 .populate('category')

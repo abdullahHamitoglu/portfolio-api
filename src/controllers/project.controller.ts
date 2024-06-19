@@ -23,7 +23,7 @@ async function getAllProjects(req: Request, res: Response) {
         const { page = 1, limit = 10 } = req.query;
 
         const projects = await Project.find({
-            status: 'active', // Only fetch published projects
+            status: req.query.status || 'active', // Only fetch published projects
             featured: req.query.featured, // Only fetch non-featured projects
         })
             .populate('category') // Populate the category field
