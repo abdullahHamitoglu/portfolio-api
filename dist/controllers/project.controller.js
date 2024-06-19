@@ -31,11 +31,9 @@ const projectFields = (project) => ({
 function getAllProjects(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { page = 1, limit = 10 } = req.query;
-            const projects = yield Projects_model_1.default.find({
-                status: req.query.status || 'active',
-                featured: req.query.featured,
-            })
+            const { page = 1, limit = 10, featured } = req.query;
+            const projects = yield Projects_model_1.default
+                .find({ featured: featured })
                 .populate('category')
                 .skip((Number(page) - 1) * Number(limit))
                 .limit(Number(limit));
