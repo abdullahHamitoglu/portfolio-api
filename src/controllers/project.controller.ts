@@ -22,7 +22,7 @@ async function getAllProjects(req: Request, res: Response) {
         const { page = 1, limit = 10, featured } = req.query;
 
         const projects = await Project
-            .find({ featured: featured })
+            .find(featured && { featured: featured })
             .populate('category') // Populate the category field
             .skip((Number(page) - 1) * Number(limit))
             .limit(Number(limit));

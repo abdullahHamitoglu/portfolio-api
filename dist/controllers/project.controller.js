@@ -33,7 +33,7 @@ function getAllProjects(req, res) {
         try {
             const { page = 1, limit = 10, featured } = req.query;
             const projects = yield Projects_model_1.default
-                .find({ featured: featured })
+                .find(featured && { featured: featured })
                 .populate('category')
                 .skip((Number(page) - 1) * Number(limit))
                 .limit(Number(limit));
