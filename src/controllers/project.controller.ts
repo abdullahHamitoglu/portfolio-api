@@ -1,10 +1,7 @@
 import Project, { IProject } from "../database/models/Projects.model";
 import dotenv from 'dotenv';
-import { removeImages } from "../controllers/uploadImage";
 import { Request, Response } from "express";
-import fs from 'fs';
-
-import path from "path";
+import Category from "../database/models/category.model";
 
 dotenv.config();
 
@@ -14,21 +11,34 @@ const projectFields = (project: IProject) => ({
     description: project.description,
     background: project.background,
     images: project.images,
-    active: project.active,
     featured: project.featured,
     status: project.status,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
-})
+    category: project.category,
+});
 
 async function getAllProjects(req: Request, res: Response) {
     try {
-        const projects = await Project.find();
-        const projectData = projects.map((project) => (projectFields(project)));
+        const { page = 1, limit = 10 } = req.query;
+
+        const projects = await Project.find({
+            status: 'active', // Only fetch published projects
+            featured: req.query.featured, // Only fetch non-featured projects
+        })
+            .populate('category') // Populate the category field
+            .skip((Number(page) - 1) * Number(limit))
+            .limit(Number(limit));
+
+        const totalProjects = await Project.countDocuments();
+
         res.json({
             status: 'success',
-            projects: projectData,
             message: 'Projects fetched successfully',
+            projects: projects.map(project => projectFields(project)),
+            total: totalProjects,
+            page: Number(page),
+            pages: Math.ceil(totalProjects / Number(limit)),
         });
     } catch (error) {
         console.error('Error fetching projects:', error);
@@ -36,6 +46,32 @@ async function getAllProjects(req: Request, res: Response) {
     }
 }
 
+async function searchProjects(req: Request, res: Response) {
+    try {
+        const { query } = req.params;
+        const { page = 1, limit = 10 } = req.query;
+
+        const projects = await Project.find({ $text: { $search: query } })
+            .skip((Number(page) - 1) * Number(limit))
+            .limit(Number(limit));
+
+        const totalProjects = await Project.countDocuments({ $text: { $search: query } });
+
+        res.json({
+            status: 'success',
+            projects: projects.map(project => projectFields(project)),
+            message: 'Projects fetched successfully',
+            total: totalProjects,
+            page: Number(page),
+            pages: Math.ceil(totalProjects / Number(limit)),
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching projects' });
+    }
+}
+
+// The rest of the functions remain unchanged
 async function getProjectById(req: Request, res: Response) {
     try {
         const project = await Project.findById(req.params.id);
@@ -57,7 +93,7 @@ async function getProjectById(req: Request, res: Response) {
     }
 }
 
-async function createProject(req: any, res: any) {
+async function createProject(req: Request, res: Response) {
     try {
         const project = await Project.create(req.body);
         res.json({
@@ -74,9 +110,10 @@ async function createProject(req: any, res: any) {
         });
     }
 }
+
 async function updateProject(req: Request, res: Response) {
     try {
-        let project = await Project.findOneAndUpdate({ id: req.body.id }, req.body, {
+        let project = await Project.findOneAndUpdate({ _id: req.body.id }, req.body, {
             new: true,
             runValidators: true,
         });
@@ -153,22 +190,6 @@ async function deleteAllProjects(req: Request, res: Response) {
         });
     }
 }
-
-async function searchProjects(req: Request, res: Response) {
-    try {
-        const query = req.params.query;
-        const projects = await Project.find({ $text: { $search: query } });
-        res.json({
-            status: 'success',
-            projects: projects.map((project) => (projectFields(project))),
-            message: 'Projects fetched successfully',
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error fetching projects' });
-    }
-}
-
 
 export {
     getAllProjects,

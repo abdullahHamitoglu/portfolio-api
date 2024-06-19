@@ -22,21 +22,31 @@ const projectFields = (project) => ({
     description: project.description,
     background: project.background,
     images: project.images,
-    active: project.active,
     featured: project.featured,
     status: project.status,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
+    category: project.category,
 });
 function getAllProjects(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const projects = yield Projects_model_1.default.find();
-            const projectData = projects.map((project) => (projectFields(project)));
+            const { page = 1, limit = 10 } = req.query;
+            const projects = yield Projects_model_1.default.find({
+                status: 'active',
+                featured: req.query.featured,
+            })
+                .populate('category')
+                .skip((Number(page) - 1) * Number(limit))
+                .limit(Number(limit));
+            const totalProjects = yield Projects_model_1.default.countDocuments();
             res.json({
                 status: 'success',
-                projects: projectData,
                 message: 'Projects fetched successfully',
+                projects: projects.map(project => projectFields(project)),
+                total: totalProjects,
+                page: Number(page),
+                pages: Math.ceil(totalProjects / Number(limit)),
             });
         }
         catch (error) {
@@ -46,6 +56,31 @@ function getAllProjects(req, res) {
     });
 }
 exports.getAllProjects = getAllProjects;
+function searchProjects(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { query } = req.params;
+            const { page = 1, limit = 10 } = req.query;
+            const projects = yield Projects_model_1.default.find({ $text: { $search: query } })
+                .skip((Number(page) - 1) * Number(limit))
+                .limit(Number(limit));
+            const totalProjects = yield Projects_model_1.default.countDocuments({ $text: { $search: query } });
+            res.json({
+                status: 'success',
+                projects: projects.map(project => projectFields(project)),
+                message: 'Projects fetched successfully',
+                total: totalProjects,
+                page: Number(page),
+                pages: Math.ceil(totalProjects / Number(limit)),
+            });
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error fetching projects' });
+        }
+    });
+}
+exports.searchProjects = searchProjects;
 function getProjectById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -94,7 +129,7 @@ exports.createProject = createProject;
 function updateProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let project = yield Projects_model_1.default.findOneAndUpdate({ id: req.body.id }, req.body, {
+            let project = yield Projects_model_1.default.findOneAndUpdate({ _id: req.body.id }, req.body, {
                 new: true,
                 runValidators: true,
             });
@@ -174,22 +209,4 @@ function deleteAllProjects(req, res) {
     });
 }
 exports.deleteAllProjects = deleteAllProjects;
-function searchProjects(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const query = req.params.query;
-            const projects = yield Projects_model_1.default.find({ $text: { $search: query } });
-            res.json({
-                status: 'success',
-                projects: projects.map((project) => (projectFields(project))),
-                message: 'Projects fetched successfully',
-            });
-        }
-        catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Error fetching projects' });
-        }
-    });
-}
-exports.searchProjects = searchProjects;
 //# sourceMappingURL=project.controller.js.map

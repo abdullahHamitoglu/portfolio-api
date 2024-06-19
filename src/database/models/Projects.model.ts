@@ -3,13 +3,13 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IProject extends Document {
     updatedAt: any;
     createdAt: any;
-    active: string;
     title: string;
     description: string;
     background: string;
     images: string[];
     status: string;
-    featured: Boolean
+    featured: Boolean;
+    category: string | object;
 }
 
 const projectSchema = new Schema({
@@ -44,7 +44,7 @@ const projectSchema = new Schema({
         required: false,
         unique: false,
     },
-    client:{
+    client: {
         type: String,
         required: false,
         unique: false,
@@ -56,6 +56,11 @@ const projectSchema = new Schema({
     updatedAt: {
         type: Date,
         default: new Date(),
+    },
+    category: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Category',
+        required: true
     },
 });
 

@@ -7,8 +7,8 @@ import {
     deleteCategory,
     updateCategory
 } from "../controllers/category.controller";
-import { HandleValidationErrors } from "../controllers/handleValidationErrors";
-import { authenticateToken } from "../controllers/authToken";
+import { HandleValidationErrors } from "../middleware/handleValidationErrors";
+import { authenticateToken } from "../middleware/authToken";
 
 const router = Router();
 
@@ -28,9 +28,7 @@ router.delete("/:id", authenticateToken, deleteCategory);
 router.put(
     "/:id",
     authenticateToken,
-    [
-        check('name').notEmpty().withMessage('Name is required'),
-    ],
+    [check('name').notEmpty().withMessage('Name is required'),],
     HandleValidationErrors,
     updateCategory
 );

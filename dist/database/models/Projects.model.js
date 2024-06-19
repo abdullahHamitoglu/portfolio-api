@@ -69,6 +69,11 @@ const projectSchema = new mongoose_1.Schema({
         type: Date,
         default: new Date(),
     },
+    category: {
+        type: mongoose_1.default.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
 });
 const Project = mongoose_1.default.model('Project', projectSchema);
 exports.default = Project;
