@@ -12,6 +12,7 @@ import { ClientRoutes } from './client.route';
 import { ContactRoutes } from './contact.route';
 import { ExperienceRoute } from './experience.route';
 import { OrderRoutes } from './order.route';
+import { CategoryRoutes } from './category.route';
 
 const router: Router = Router();
 
@@ -24,6 +25,7 @@ router.use('/clients', ClientRoutes);
 router.use('/contact', ContactRoutes);
 router.post('/upload', uploadMiddleware, uploadImages);
 router.use('/orders', OrderRoutes); // Use order routes
+router.use('/categories', CategoryRoutes); // Use order routes
 
 // Serve static files
 

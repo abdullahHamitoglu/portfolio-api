@@ -1,7 +1,14 @@
 import { Request, Response } from "express";
 import Category, { ICategory } from "../database/models/category.model";
 import { validationResult } from "express-validator";
-
+const categoryFields = (category: ICategory) => ({
+    id: category._id,
+    description: category.description,
+    featured: category.featured,
+    status: category.status,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+});
 export const createCategory = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -9,16 +16,12 @@ export const createCategory = async (req: Request, res: Response) => {
     }
 
     try {
-        const { name, description } = req.body;
-        const category: ICategory = new Category({
-            name,
-            description
-        });
+        const category: ICategory = new Category(req.body);
 
         await category.save();
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category created successfully",
         });
     } catch (error) {
@@ -35,7 +38,7 @@ export const getCategories = async (req: Request, res: Response) => {
         const categories: ICategory[] = await Category.find();
         res.json({
             status: "success",
-            data: categories,
+            data: categories.map((category) => (categoryFields(category))),
             message: "Categories fetched successfully",
         });
     } catch (error) {
@@ -58,7 +61,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
         }
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category fetched successfully",
         });
     } catch (error) {
@@ -81,7 +84,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
         }
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category deleted successfully",
         });
     } catch (error) {
@@ -109,7 +112,7 @@ export const updateCategory = async (req: Request, res: Response) => {
         }
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category updated successfully",
         });
     } catch (error) {
