@@ -15,6 +15,7 @@ const client_route_1 = require("./client.route");
 const contact_route_1 = require("./contact.route");
 const experience_route_1 = require("./experience.route");
 const order_route_1 = require("./order.route");
+const category_route_1 = require("./category.route");
 const router = (0, express_1.Router)();
 router.use('', user_route_1.UsersRoutes);
 router.use('/auth', auth_route_1.AuthRoutes);
@@ -25,6 +26,7 @@ router.use('/clients', client_route_1.ClientRoutes);
 router.use('/contact', contact_route_1.ContactRoutes);
 router.post('/upload', uploadMiddleware_1.default, uploadImage_1.uploadImages);
 router.use('/orders', order_route_1.OrderRoutes);
+router.use('/categories', category_route_1.CategoryRoutes);
 router.use((req, res) => (res.status(404).json({
     status: 404,
     message: 'Route Not Found',

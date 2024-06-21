@@ -15,21 +15,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateCategory = exports.deleteCategory = exports.getCategoryById = exports.getCategories = exports.createCategory = void 0;
 const category_model_1 = __importDefault(require("../database/models/category.model"));
 const express_validator_1 = require("express-validator");
+const categoryFields = (category) => ({
+    id: category._id,
+    description: category.description,
+    featured: category.featured,
+    status: category.status,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+});
 const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const { name, description } = req.body;
-        const category = new category_model_1.default({
-            name,
-            description
-        });
+        const category = new category_model_1.default(req.body);
         yield category.save();
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category created successfully",
         });
     }
@@ -47,7 +51,7 @@ const getCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const categories = yield category_model_1.default.find();
         res.json({
             status: "success",
-            data: categories,
+            data: categories.map((category) => (categoryFields(category))),
             message: "Categories fetched successfully",
         });
     }
@@ -71,7 +75,7 @@ const getCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, function
         }
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category fetched successfully",
         });
     }
@@ -95,7 +99,7 @@ const deleteCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category deleted successfully",
         });
     }
@@ -123,7 +127,7 @@ const updateCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         res.json({
             status: "success",
-            data: category,
+            data: categoryFields(category),
             message: "Category updated successfully",
         });
     }
