@@ -15,9 +15,7 @@ const router = Router();
 router.post(
     '/',
     authenticateToken,
-    [
-        check('name').notEmpty().withMessage('Name is required'),
-    ],
+    [check('name').notEmpty().withMessage('Name is required')],
     HandleValidationErrors,
     createCategory
 );
@@ -28,10 +26,9 @@ router.delete("/:id", authenticateToken, deleteCategory);
 router.put(
     "/:id",
     authenticateToken,
-    [check('name').notEmpty().withMessage('Name is required'),],
+    [check('name').notEmpty().withMessage('Name is required')],
     HandleValidationErrors,
     updateCategory
 );
 
-export const CategoryRoutes = router
-
+export const CategoryRoutes = router;

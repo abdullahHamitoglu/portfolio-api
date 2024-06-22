@@ -1,0 +1,15 @@
+{
+    "welcome": "Hoş geldiniz",
+    "error_fetching_projects": "Projeler alınırken hata oluştu",
+    "projects_fetched_successfully": "Projeler başarıyla alındı",
+    "project_not_found": "Proje bulunamadı",
+    "error_creating_project": "Proje oluşturulurken hata oluştu",
+    "project_created_successfully": "Proje başarıyla oluşturuldu",
+    "error_updating_project": "Proje güncellenirken hata oluştu",
+    "project_updated_successfully": "Proje başarıyla güncellendi",
+    "error_deleting_project": "Proje silinirken hata oluştu",
+    "project_deleted_successfully": "Proje başarıyla silindi",
+    "error_deleting_projects": "Projeler silinirken hata oluştu",
+    "projects_deleted_successfully": "Tüm projeler başarıyla silindi",
+    "no_projects_to_delete": "Silinecek proje yok"
+}

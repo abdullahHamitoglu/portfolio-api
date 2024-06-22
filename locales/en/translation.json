@@ -1,0 +1,15 @@
+{
+    "welcome": "Welcome",
+    "error_fetching_projects": "Error fetching projects",
+    "projects_fetched_successfully": "Projects fetched successfully",
+    "project_not_found": "Project not found",
+    "error_creating_project": "Error creating project",
+    "project_created_successfully": "Project created successfully",
+    "error_updating_project": "Error updating project",
+    "project_updated_successfully": "Project updated successfully",
+    "error_deleting_project": "Error deleting project",
+    "project_deleted_successfully": "Project deleted successfully",
+    "error_deleting_projects": "Error deleting projects",
+    "projects_deleted_successfully": "All projects deleted successfully",
+    "no_projects_to_delete": "No projects to delete"
+}

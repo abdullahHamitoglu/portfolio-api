@@ -6,7 +6,6 @@ import {
     updateProject,
     deleteProject,
     deleteAllProjects,
-    searchProjects,
 } from "../controllers/project.controller";
 import { authenticateToken } from "../middleware/authToken";
 import { removeImages } from "../controllers/uploadImage";
@@ -32,7 +31,5 @@ router.delete('/:id', authenticateToken, removeImages, deleteProject);
 // Delete all projects route
 router.delete('/', authenticateToken, removeImages, deleteAllProjects);
 
-// Search projects route
-router.get('/search/:query', authenticateToken, searchProjects);
 
 export const ProjectRoutes = router;

@@ -1,25 +1,28 @@
 import { Request, Response } from "express";
 import ContactMessage, { IContactMessage } from "../database/models/Contact.model";
-import { check, validationResult } from "express-validator";
+import { validationResult } from "express-validator";
 
+const contactFields = (contact: IContactMessage) => {
+    return {
+        id: contact._id,
+        name: contact.name,
+        email: contact.email,
+        service: contact.service,
+        message: contact.message,
+    }
+}
 export const createContactMessage = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-
     try {
-        const { name, email, message } = req.body;
-        const contactMessage: IContactMessage = new ContactMessage({
-            name,
-            email,
-            message
-        });
+        const contactMessage: IContactMessage = new ContactMessage(req.body);
 
         await contactMessage.save();
         res.json({
             status: "success",
-            data: contactMessage,
+            data: contactFields(contactMessage),
             message: "Contact message sent successfully",
         });
     } catch (error) {
@@ -31,13 +34,25 @@ export const createContactMessage = async (req: Request, res: Response) => {
     }
 };
 
+
 export const getContactMessages = async (req: Request, res: Response) => {
     try {
-        const messages: IContactMessage[] = await ContactMessage.find();
+        const { page = 1, limit = 10 } = req.query;
+
+        const messages: IContactMessage[] = await ContactMessage
+            .find()
+            .populate('service') // Populate the category field
+            .skip((Number(page) - 1) * Number(limit))
+            .limit(Number(limit));
+        ;
+        const total = await ContactMessage.countDocuments();
         res.json({
             status: "success",
-            data: messages,
+            contacts: messages.map(massage => (contactFields(massage))),
             message: "Contact messages fetched successfully",
+            total: total,
+            page: Number(page),
+            pages: Math.ceil(total / Number(limit)),
         });
     } catch (error) {
         console.error('Error fetching contact messages:', error);
@@ -59,7 +74,7 @@ export const getContactMessageById = async (req: Request, res: Response) => {
         }
         res.json({
             status: "success",
-            data: message,
+            contact: message,
             message: "Contact message fetched successfully",
         });
     } catch (error) {

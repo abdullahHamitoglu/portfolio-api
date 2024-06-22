@@ -1,116 +1,100 @@
 import Project, { IProject } from "../database/models/Projects.model";
-import dotenv from 'dotenv';
 import { Request, Response } from "express";
+import { LocaleKeys } from "index";
+import { categoryFields } from "./category.controller";
+import { ICategory } from "../database/models/category.model";
 
-dotenv.config();
-
-const projectFields = (project: IProject) => ({
+const projectFields = (project: IProject, locale?: LocaleKeys) => ({
     id: project._id,
-    title: project.title,
-    description: project.description,
+    title: project.title[locale] || project.title, // Fallback to English if the specified language is not available
+    description: project.description[locale] || project.description, // Same for description
     background: project.background,
     images: project.images,
     featured: project.featured,
     status: project.status,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
-    category: project.category,
+    category: categoryFields(project.category as ICategory , locale),
 });
 
 async function getAllProjects(req: Request, res: Response) {
     try {
-        const { page = 1, limit = 10, featured } = req.query;
+        const { page = 1, limit = 10, featured, multiLocale } = req.query;
+        const locale = req.query.locale as LocaleKeys || 'en';
 
-        const projects = await Project
-            .find(featured && { featured: featured })
+        const query: any = {};
+        if (featured) {
+            query.featured = featured === 'true';
+        }
+
+        const projects = await Project.find(query)
             .populate('category') // Populate the category field
             .skip((Number(page) - 1) * Number(limit))
             .limit(Number(limit));
 
-        const totalProjects = await Project.countDocuments();
+        const totalProjects = await Project.countDocuments(query);
 
         res.json({
             status: 'success',
-            message: 'Projects fetched successfully',
-            projects: projects.map(project => projectFields(project)),
+            message: req.t('projects_fetched_successfully'),
+            projects: projects.map(project => multiLocale ? projectFields(project) : projectFields(project, locale)),
             total: totalProjects,
             page: Number(page),
             pages: Math.ceil(totalProjects / Number(limit)),
         });
     } catch (error) {
         console.error('Error fetching projects:', error);
-        res.status(500).json({ error: 'Error fetching projects' });
+        res.status(500).json({ error: req.t('error_fetching_projects') });
     }
 }
 
-async function searchProjects(req: Request, res: Response) {
-    try {
-        const { query } = req.params;
-        const { page = 1, limit = 10 } = req.query;
-
-        const projects = await Project.find({ $text: { $search: query } })
-            .skip((Number(page) - 1) * Number(limit))
-            .limit(Number(limit));
-
-        const totalProjects = await Project.countDocuments({ $text: { $search: query } });
-
-        res.json({
-            status: 'success',
-            projects: projects.map(project => projectFields(project)),
-            message: 'Projects fetched successfully',
-            total: totalProjects,
-            page: Number(page),
-            pages: Math.ceil(totalProjects / Number(limit)),
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error fetching projects' });
-    }
-}
-
-// The rest of the functions remain unchanged
 async function getProjectById(req: Request, res: Response) {
     try {
-        const project = await Project.findById(req.params.id);
+        const locale = req.query.locale as LocaleKeys || 'en';
+        const multiLocale = req.query.multiLocale;
+
+        const project = await Project.findById(req.params.id).populate('category');
         if (!project) {
             return res.status(404).json({
                 status: 'error',
-                message: 'Project not found',
+                message: req.t('project_not_found'),
                 data: null,
             });
         }
         res.json({
             status: 'success',
-            project: projectFields(project),
-            message: 'Project fetched successfully',
+            project: projectFields(project, multiLocale ? null : locale),
+            message: req.t('project_fetched_successfully'),
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error fetching project' });
+        res.status(500).json({ error: req.t('error_fetching_project') });
     }
 }
 
 async function createProject(req: Request, res: Response) {
     try {
+        const locale = req.query.locale as LocaleKeys || 'en';
         const project = await Project.create(req.body);
         res.json({
             status: 'success',
-            project: projectFields(project),
-            message: 'Project created successfully',
+            project: projectFields(project, locale),
+            message: req.t('project_created_successfully'),
         });
     } catch (error) {
         console.error('Error creating project:', error);
         res.status(500).json({
             status: 'error',
-            message: 'Error creating project',
-            error: 'Error creating project',
+            message: req.t('error_creating_project'),
+            error: error.message,
         });
     }
 }
 
 async function updateProject(req: Request, res: Response) {
     try {
-        let project = await Project.findOneAndUpdate({ _id: req.body.id }, req.body, {
+        const locale = req.query.locale as LocaleKeys || 'en';
+        let project = await Project.findOneAndUpdate({ _id: req.params.id }, req.body, {
             new: true,
             runValidators: true,
         });
@@ -118,7 +102,7 @@ async function updateProject(req: Request, res: Response) {
         if (!project) {
             return res.status(404).json({
                 status: 'error',
-                message: 'Project not found',
+                message: req.t('project_not_found'),
             });
         }
 
@@ -130,23 +114,23 @@ async function updateProject(req: Request, res: Response) {
 
         res.json({
             status: 'success',
-            data: projectFields(project),
-            message: 'Project updated successfully',
+            data: projectFields(project, locale),
+            message: req.t('project_updated_successfully'),
         });
     } catch (error) {
         console.error('Error updating project:', error);
-        res.status(500).json({ error: 'Error updating project' });
+        res.status(500).json({ error: req.t('error_updating_project') });
     }
 }
 
 async function deleteProject(req: Request, res: Response) {
     try {
-        const project = await Project.findOneAndDelete({ _id: req.params.id });
+        const project = await Project.findByIdAndDelete(req.params.id);
 
         if (!project) {
             return res.status(404).json({
                 status: 'error',
-                message: 'Project not found',
+                message: req.t('project_not_found'),
                 data: null,
             });
         }
@@ -154,36 +138,37 @@ async function deleteProject(req: Request, res: Response) {
         res.json({
             status: 'success',
             data: null,
-            message: 'Project deleted successfully',
+            message: req.t('project_deleted_successfully'),
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error deleting project' });
+        console.error('Error deleting project:', error);
+        res.status(500).json({ error: req.t('error_deleting_project') });
     }
 }
 
 async function deleteAllProjects(req: Request, res: Response) {
-    const projects = await Project.find();
-    if (projects.length <= 0) {
-        return res.status(401).json({
-            status: 'error',
-            error: 'No projects to delete',
-            message: 'No projects to delete',
-        });
-    }
     try {
+        const projects = await Project.find();
+        if (projects.length === 0) {
+            return res.status(404).json({
+                status: 'error',
+                message: req.t('no_projects_to_delete'),
+                data: null,
+            });
+        }
+
         await Project.deleteMany({});
         res.json({
             status: 'success',
             data: null,
-            message: 'All projects deleted successfully',
+            message: req.t('projects_deleted_successfully'),
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting all projects:', error);
         res.status(500).json({
             status: 'error',
-            error: 'Error deleting projects',
-            message: 'Error deleting projects',
+            message: req.t('error_deleting_projects'),
+            error: error.message,
         });
     }
 }
@@ -195,5 +180,5 @@ export {
     updateProject,
     deleteProject,
     deleteAllProjects,
-    searchProjects,
+    projectFields
 };

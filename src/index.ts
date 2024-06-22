@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { i18nextMiddleware, setLanguage } from './../i18n';
 import express from 'express';
 import { MainRouter } from './routes';
 import dotenv from 'dotenv';
@@ -9,10 +9,10 @@ dotenv.config();
 
 // Initialize database
 import './database';
-import uploadMiddleware from './middleware/uploadMiddleware';
 
 const app = express();
 
+// Middleware to parse incoming request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -26,6 +26,10 @@ app.use(cors(corsOptions));
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, '../public')));
+
+// Initialize i18next middleware
+app.use(i18nextMiddleware);
+app.use(setLanguage); // Use middleware to set language based on query parameter
 
 // Use main router
 app.use('', MainRouter);

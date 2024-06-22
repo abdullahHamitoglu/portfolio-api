@@ -1,19 +1,27 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ICategory extends Document {
-    name: string;
-    description?: string;
+    name: { en: string, ar?: string, tr?: string };
+    description?: { en: string, ar: string, tr: string };
     featured?: Boolean;
-    status: Boolean;
+    status: string;
     createdAt: Date;
     updatedAt: Date;
 }
 
 const categorySchema: Schema = new Schema({
-    name: { type: String, required: true, unique: true },
-    description: { type: String },
+    name: {
+        en: { type: String, required: true },
+        ar: { type: String },
+        tr: { type: String }
+    },
+    description: {
+        en: { type: String },
+        ar: { type: String },
+        tr: { type: String }
+    },
     featured: { type: Boolean, default: false },
-    status: { type: Boolean, default: true },
+    status: { type: String, default: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

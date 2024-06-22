@@ -1,0 +1,15 @@
+{
+    "welcome": "مرحبًا",
+    "error_fetching_projects": "خطأ في جلب المشاريع",
+    "projects_fetched_successfully": "تم جلب المشاريع بنجاح",
+    "project_not_found": "لم يتم العثور على المشروع",
+    "error_creating_project": "خطأ في إنشاء المشروع",
+    "project_created_successfully": "تم إنشاء المشروع بنجاح",
+    "error_updating_project": "خطأ في تحديث المشروع",
+    "project_updated_successfully": "تم تحديث المشروع بنجاح",
+    "error_deleting_project": "خطأ في حذف المشروع",
+    "project_deleted_successfully": "تم حذف المشروع بنجاح",
+    "error_deleting_projects": "خطأ في حذف المشاريع",
+    "projects_deleted_successfully": "تم حذف جميع المشاريع بنجاح",
+    "no_projects_to_delete": "لا توجد مشاريع للحذف"
+}
