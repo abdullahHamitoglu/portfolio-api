@@ -1,4 +1,4 @@
-import { i18nextMiddleware, setLanguage } from './../i18n';
+import { i18nextMiddleware, setLanguage } from './i18n';
 import express from 'express';
 import { MainRouter } from './routes';
 import dotenv from 'dotenv';
