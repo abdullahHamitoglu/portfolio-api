@@ -1,11 +1,10 @@
 import i18n from 'i18next';
 import Backend from 'i18next-fs-backend';
-import middleware from 'i18next-express-middleware';
+import middleware, { LanguageDetector } from 'i18next-express-middleware';
 import path from 'path';
 import { NextFunction, Request, Response } from 'express';
 
 i18n.use(Backend)
-    .use(middleware.LanguageDetector)
     .init({
         fallbackLng: 'en', // Default language
         preload: ['en', 'ar', 'tr'], // Languages to preload

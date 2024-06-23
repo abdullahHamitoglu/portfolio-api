@@ -9,7 +9,6 @@ const i18next_fs_backend_1 = __importDefault(require("i18next-fs-backend"));
 const i18next_express_middleware_1 = __importDefault(require("i18next-express-middleware"));
 const path_1 = __importDefault(require("path"));
 i18next_1.default.use(i18next_fs_backend_1.default)
-    .use(i18next_express_middleware_1.default.LanguageDetector)
     .init({
     fallbackLng: 'en',
     preload: ['en', 'ar', 'tr'],
