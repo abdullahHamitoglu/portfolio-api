@@ -1,9 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
-type socialMedia = {
-    type: string;
-    title?: string;
-    link: string;
-}
+
+export type SocialData = {
+    url: string;
+    icon: string;
+    name: string;
+};
+
 export interface IUser extends Document {
     name: string;
     username: string;
@@ -11,7 +13,7 @@ export interface IUser extends Document {
     password: string;
     resume: string;
     profilePicture: string;
-    contactsData: Array<socialMedia>;
+    socialData: SocialData[];
     isAdmin: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -61,9 +63,9 @@ const userSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    contactsData: {
-        type: Array<socialMedia>,
-        default: [],
+    socialData: {
+        type: Array<SocialData>,
+        default: []
     },
 });
 // create a model using the schema

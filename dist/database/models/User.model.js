@@ -67,9 +67,9 @@ const userSchema = new mongoose_1.Schema({
         type: Boolean,
         default: false,
     },
-    contactsData: {
+    socialData: {
         type: (Array),
-        default: [],
+        default: []
     },
 });
 const User = mongoose_1.default.model('User', userSchema);

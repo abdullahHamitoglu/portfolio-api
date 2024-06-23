@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserContact = exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.getUsers = exports.getUserProfile = exports.upload = void 0;
+exports.editSocialData = exports.updateUserContact = exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.getUsers = exports.getUserProfile = exports.upload = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_model_1 = __importDefault(require("../database/models/User.model"));
 const authToken_1 = require("../middleware/authToken");
@@ -38,7 +38,7 @@ const userProfile = (user, req) => {
         email: user.email,
         profilePicture: user.profilePicture ? `${req.protocol}://${req.get('host')}${user.profilePicture}` : '',
         isEmailVerified: user.isEmailVerified,
-        contactsData: user.contactsData,
+        socialData: user.socialData,
         resume: user.resume,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -186,4 +186,27 @@ const updateUserContact = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateUserContact = updateUserContact;
+const editSocialData = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_model_1.default.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        user.socialData = req.body;
+        yield user.save();
+        res.json({
+            status: 'success',
+            user: userProfile(user, req),
+            message: 'Social Data updated successfully',
+        });
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Error updating user' });
+    }
+});
+exports.editSocialData = editSocialData;
 //# sourceMappingURL=user.controller.js.map

@@ -32,7 +32,7 @@ const userProfile = (user: IUser, req: Request) => {
         email: user.email,
         profilePicture: user.profilePicture ? `${req.protocol}://${req.get('host')}${user.profilePicture}` : '',
         isEmailVerified: user.isEmailVerified,
-        contactsData: user.contactsData,
+        socialData: user.socialData,
         resume: user.resume,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -201,3 +201,29 @@ export const updateUserContact = async (req: any, res: Response) => {
         });
     }
 };
+
+// social data 
+export const editSocialData = async (req: Request, res: Response)=>{
+
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+
+        user.socialData = req.body;
+        await user.save();
+
+        res.json({
+            status: 'success',
+            user: userProfile(user, req),
+            message: 'Social Data updated successfully',
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error updating user' });
+    }
+}
