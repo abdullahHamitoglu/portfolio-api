@@ -123,7 +123,6 @@ router.post('/send-reset-password', [
                 status: 'success',
                 message: 'Email sent successfully',
                 user: {
-                    username: user.username,
                     email: user.email,
                     token,
                 },
@@ -169,7 +168,6 @@ router.post('/reset-password', [
             status: 'success',
             message: 'Password changed successfully',
             user: {
-                username: user.username,
                 email: user.email,
             },
         });

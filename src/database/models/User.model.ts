@@ -1,19 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type SocialData = {
-    url: string;
-    icon: string;
-    name: string;
-};
-
 export interface IUser extends Document {
     name: string;
-    username: string;
     email: string;
     password: string;
     resume: string;
     profilePicture: string;
-    socialData: SocialData[];
     isAdmin: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -24,11 +16,6 @@ const userSchema = new Schema({
     name: {
         type: String,
         required: false,
-    },
-    username: {
-        type: String,
-        required: false,
-        unique: true,
     },
     email: {
         type: String,
@@ -62,10 +49,6 @@ const userSchema = new Schema({
     isEmailVerified: {
         type: Boolean,
         default: false,
-    },
-    socialData: {
-        type: Array<SocialData>,
-        default: []
     },
 });
 // create a model using the schema

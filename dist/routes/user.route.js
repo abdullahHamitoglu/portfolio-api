@@ -15,7 +15,5 @@ router.post('/user/create', [
 ], handleValidationErrors_1.HandleValidationErrors, user_controller_1.createUser);
 router.delete('/user/:id', user_controller_1.deleteUser);
 router.put('/profile', user_controller_1.upload.fields([{ name: 'profilePicture', maxCount: 1 }]), authToken_1.authenticateToken, user_controller_1.updateUserProfile);
-router.put('/contact', authToken_1.authenticateToken, user_controller_1.updateUserContact);
-router.put('/social', authToken_1.authenticateToken, user_controller_1.editSocialData);
 exports.UsersRoutes = router;
 //# sourceMappingURL=user.route.js.map

@@ -29,11 +29,6 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         required: false,
     },
-    username: {
-        type: String,
-        required: false,
-        unique: true,
-    },
     email: {
         type: String,
         required: true,
@@ -66,10 +61,6 @@ const userSchema = new mongoose_1.Schema({
     isEmailVerified: {
         type: Boolean,
         default: false,
-    },
-    socialData: {
-        type: (Array),
-        default: []
     },
 });
 const User = mongoose_1.default.model('User', userSchema);

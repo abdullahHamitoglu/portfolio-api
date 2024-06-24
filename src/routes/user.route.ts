@@ -7,9 +7,7 @@ import {
     createUser,
     deleteUser,
     updateUserProfile,
-    updateUserContact,
     upload,
-    editSocialData
 } from '../controllers/user.controller';
 import { HandleValidationErrors } from '../middleware/handleValidationErrors';
 
@@ -27,8 +25,5 @@ router.post('/user/create',
 );
 router.delete('/user/:id', deleteUser);
 router.put('/profile', upload.fields([{ name: 'profilePicture', maxCount: 1 }]), authenticateToken, updateUserProfile);
-router.put('/contact', authenticateToken, updateUserContact);
-router.put('/social', authenticateToken, editSocialData);
-
 
 export const UsersRoutes: Router = router;
