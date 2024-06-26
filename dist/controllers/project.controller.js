@@ -37,6 +37,9 @@ function getAllProjects(req, res) {
             if (featured) {
                 query.featured = featured === 'true';
             }
+            if (req.query.category) {
+                query.category = req.query.category;
+            }
             const projects = yield Projects_model_1.default.find(query)
                 .populate('category')
                 .skip((Number(page) - 1) * Number(limit))

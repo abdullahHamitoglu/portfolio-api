@@ -26,6 +26,10 @@ async function getAllProjects(req: Request, res: Response) {
         if (featured) {
             query.featured = featured === 'true';
         }
+        
+        if (req.query.category) {
+            query.category = req.query.category;
+        }
 
         const projects = await Project.find(query)
             .populate('category') // Populate the category field
