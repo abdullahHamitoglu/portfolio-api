@@ -6,8 +6,8 @@ import { ICategory } from "../database/models/category.model";
 
 const projectFields = (project: IProject, locale?: LocaleKeys) => ({
     id: project._id,
-    title: project.title[locale] || project.title, // Fallback to English if the specified language is not available
-    description: project.description[locale] || project.description, // Same for description
+    title: project.title[locale] || project.title,
+    description: project.description[locale] || project.description,
     background: project.background,
     images: project.images,
     featured: project.featured,
@@ -26,7 +26,6 @@ async function getAllProjects(req: Request, res: Response) {
         if (featured) {
             query.featured = featured === 'true';
         }
-        
         if (req.query.category) {
             query.category = req.query.category;
         }

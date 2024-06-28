@@ -10,6 +10,7 @@ import { ContactRoutes } from './contact.route';
 import { ExperienceRoute } from './experience.route';
 import { OrderRoutes } from './order.route';
 import { CategoryRoutes } from './category.route';
+import { PagesRoute } from "./pages.route";
 
 const router: Router = Router();
 
@@ -23,6 +24,7 @@ router.use('/clients', ClientRoutes);
 router.use('/contact', ContactRoutes);
 router.post('/upload', uploadMiddleware, uploadImages);
 router.use('/orders', OrderRoutes);
+router.use('/pages', PagesRoute);
 
 // Handle 404 errors
 router.use((req, res) => (

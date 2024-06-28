@@ -58,3 +58,13 @@ export const deleteClient = async (req: Request, res: Response): Promise<void> =
         res.status(500).json({ message: error.message });
     }
 };
+
+// get clients count
+export const getClientsCount = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const count = await Client.countDocuments();
+        res.status(200).json({ count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

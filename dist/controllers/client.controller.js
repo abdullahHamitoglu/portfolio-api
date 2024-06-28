@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteClient = exports.updateClient = exports.getClientById = exports.getClients = exports.createClient = void 0;
+exports.getClientsCount = exports.deleteClient = exports.updateClient = exports.getClientById = exports.getClients = exports.createClient = void 0;
 const Client_model_1 = __importDefault(require("../database/models/Client.model"));
 const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -80,4 +80,14 @@ const deleteClient = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.deleteClient = deleteClient;
+const getClientsCount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const count = yield Client_model_1.default.countDocuments();
+        res.status(200).json({ count });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+exports.getClientsCount = getClientsCount;
 //# sourceMappingURL=client.controller.js.map
