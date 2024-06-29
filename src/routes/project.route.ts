@@ -8,7 +8,6 @@ import {
     deleteAllProjects,
 } from "../controllers/project.controller";
 import { authenticateToken } from "../middleware/authToken";
-import { removeImages } from "../controllers/uploadImage";
 
 const router = Router();
 
@@ -26,10 +25,10 @@ router.put('/:id', authenticateToken, updateProject);
 router.get('/:id', getProjectById);
 
 // Delete project route
-router.delete('/:id', authenticateToken, removeImages, deleteProject);
+router.delete('/:id', authenticateToken, deleteProject);
 
 // Delete all projects route
-router.delete('/', authenticateToken, removeImages, deleteAllProjects);
+router.delete('/', authenticateToken, deleteAllProjects);
 
 
 export const ProjectRoutes = router;

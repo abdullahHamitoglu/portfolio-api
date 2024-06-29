@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeImages = exports.uploadImages = void 0;
+exports.gallery = exports.removeImages = exports.uploadImages = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -33,19 +33,34 @@ const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     });
 });
 exports.uploadImages = uploadImages;
-const removeImages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const files = req.files;
-    const dir = path_1.default.join(__dirname, '../../public/uploads');
-    if (!files)
-        return next();
-    for (const file of files) {
-        fs_1.default.unlink(`${dir}/${file.filename}`, (err) => {
+const removeImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filename = req.params.filename;
+    const filePath = path_1.default.join(__dirname, '../../public/uploads', filename);
+    fs_1.default.access(filePath, fs_1.default.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).json({ error: 'File not found' });
+        }
+        fs_1.default.unlink(filePath, (err) => {
             if (err) {
-                console.error(err);
+                return res.status(500).json({ error: 'Unable to delete file' });
             }
+            res.json({ message: 'File deleted successfully' });
         });
-    }
-    next();
+    });
 });
 exports.removeImages = removeImages;
-//# sourceMappingURL=uploadImage.js.map
+const gallery = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const uploadsDir = path_1.default.join(__dirname, '../../public/uploads');
+    fs_1.default.readdir(uploadsDir, (err, files) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ error: 'Unable to scan directory' });
+        }
+        const images = files.filter(file => {
+            return `${/\.(jpg|jpeg|png|gif)$/.test(file)}`;
+        });
+        res.json(images.map((image) => (`${req.protocol}://${req.get('host')}/uploads/${image}`)));
+    });
+});
+exports.gallery = gallery;
+//# sourceMappingURL=storage.controller.js.map

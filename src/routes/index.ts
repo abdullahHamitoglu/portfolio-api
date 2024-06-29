@@ -3,14 +3,13 @@ import { UsersRoutes } from "./user.route";
 import { AuthRoutes } from "./auth.route";
 import { ProjectRoutes } from "./project.route";
 import { SkillsRouter } from "./skills.route";
-import uploadMiddleware from '../middleware/uploadMiddleware';
-import { uploadImages } from '../controllers/uploadImage';
 import { ClientRoutes } from './client.route';
 import { ContactRoutes } from './contact.route';
 import { ExperienceRoute } from './experience.route';
 import { OrderRoutes } from './order.route';
 import { CategoryRoutes } from './category.route';
 import { PagesRoute } from "./pages.route";
+import { StorageRoutes } from "./storage.route";
 
 const router: Router = Router();
 
@@ -22,9 +21,10 @@ router.use('/skills', SkillsRouter);
 router.use('/experiences', ExperienceRoute);
 router.use('/clients', ClientRoutes);
 router.use('/contact', ContactRoutes);
-router.post('/upload', uploadMiddleware, uploadImages);
 router.use('/orders', OrderRoutes);
 router.use('/pages', PagesRoute);
+router.use('/storage', StorageRoutes);
+
 
 // Handle 404 errors
 router.use((req, res) => (

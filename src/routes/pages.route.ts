@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { getPages, getPageById, createPage, updatePage, deletePage, getPageBySlug } from '../controllers/pages.controller';
 import { authenticateToken } from '../middleware/authToken';
-
+import fs from 'fs';
+import path from 'path';
 const router = Router();
 
 router.get('/', getPages);
