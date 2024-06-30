@@ -40,6 +40,12 @@ function getAllProjects(req, res) {
             if (req.query.category) {
                 query.category = req.query.category;
             }
+            if (req.query.status) {
+                query.status = req.query.status;
+            }
+            else {
+                query.status = 'active';
+            }
             const projects = yield Projects_model_1.default.find(query)
                 .populate('category')
                 .skip((Number(page) - 1) * Number(limit))

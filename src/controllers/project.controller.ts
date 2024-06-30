@@ -14,7 +14,7 @@ const projectFields = (project: IProject, locale?: LocaleKeys) => ({
     status: project.status,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
-    category: categoryFields(project.category as ICategory , locale),
+    category: categoryFields(project.category as ICategory, locale),
 });
 
 async function getAllProjects(req: Request, res: Response) {
@@ -28,6 +28,11 @@ async function getAllProjects(req: Request, res: Response) {
         }
         if (req.query.category) {
             query.category = req.query.category;
+        }
+        if (req.query.status) {
+            query.status = req.query.status;
+        }else{
+            query.status = 'active';
         }
 
         const projects = await Project.find(query)
