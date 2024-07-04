@@ -117,12 +117,14 @@ async function updateProject(req: Request, res: Response) {
         if (req.body.images) {
             // Add new images to the existing ones
             project.images = [...project.images, ...req.body.images];
+            // filter same images 
+            project.images = project.images.filter((image, index, self) => self.indexOf(image) === index);
             await project.save();
         }
 
         res.json({
             status: 'success',
-            data: projectFields(project, locale),
+            data: projectFields(project),
             message: req.t('project_updated_successfully'),
         });
     } catch (error) {

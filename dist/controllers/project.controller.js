@@ -131,11 +131,12 @@ function updateProject(req, res) {
             }
             if (req.body.images) {
                 project.images = [...project.images, ...req.body.images];
+                project.images = project.images.filter((image, index, self) => self.indexOf(image) === index);
                 yield project.save();
             }
             res.json({
                 status: 'success',
-                data: projectFields(project, locale),
+                data: projectFields(project),
                 message: req.t('project_updated_successfully'),
             });
         }
