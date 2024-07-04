@@ -6,8 +6,8 @@ import { ICategory } from "../database/models/category.model";
 
 const projectFields = (project: IProject, locale?: LocaleKeys) => ({
     id: project._id,
-    title: project.title[locale] || project.title,
-    description: project.description[locale] || project.description,
+    title: locale ? project.title[locale] : project.title,
+    description: locale ? project.description[locale] : project.description,
     background: project.background,
     images: project.images,
     featured: project.featured,
@@ -31,7 +31,7 @@ async function getAllProjects(req: Request, res: Response) {
         }
         if (req.query.status) {
             query.status = req.query.status;
-        }else{
+        } else {
             query.status = 'active';
         }
 
@@ -86,7 +86,7 @@ async function createProject(req: Request, res: Response) {
         const project = await Project.create(req.body);
         res.json({
             status: 'success',
-            project: projectFields(project, locale),
+            project: projectFields(project),
             message: req.t('project_created_successfully'),
         });
     } catch (error) {

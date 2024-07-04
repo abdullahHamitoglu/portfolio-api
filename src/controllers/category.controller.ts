@@ -4,8 +4,8 @@ import { validationResult } from "express-validator";
 import { LocaleKeys } from "index";
 const categoryFields = (category: ICategory, locale?: LocaleKeys) => ({
     id: category._id,
-    name: category.name[locale] || category.name,
-    description: category.description[locale] || category.description,
+    name: locale ? category.name[locale] : category.name,
+    description: locale ? category.description[locale] : category.description,
     featured: category.featured,
     status: category.status,
     createdAt: category.createdAt,

@@ -17,8 +17,8 @@ const Projects_model_1 = __importDefault(require("../database/models/Projects.mo
 const category_controller_1 = require("./category.controller");
 const projectFields = (project, locale) => ({
     id: project._id,
-    title: project.title[locale] || project.title,
-    description: project.description[locale] || project.description,
+    title: locale ? project.title[locale] : project.title,
+    description: locale ? project.description[locale] : project.description,
     background: project.background,
     images: project.images,
     featured: project.featured,
@@ -100,7 +100,7 @@ function createProject(req, res) {
             const project = yield Projects_model_1.default.create(req.body);
             res.json({
                 status: 'success',
-                project: projectFields(project, locale),
+                project: projectFields(project),
                 message: req.t('project_created_successfully'),
             });
         }

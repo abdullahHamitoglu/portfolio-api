@@ -17,8 +17,8 @@ const category_model_1 = __importDefault(require("../database/models/category.mo
 const express_validator_1 = require("express-validator");
 const categoryFields = (category, locale) => ({
     id: category._id,
-    name: category.name[locale] || category.name,
-    description: category.description[locale] || category.description,
+    name: locale ? category.name[locale] : category.name,
+    description: locale ? category.description[locale] : category.description,
     featured: category.featured,
     status: category.status,
     createdAt: category.createdAt,
