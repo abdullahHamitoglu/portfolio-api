@@ -37,6 +37,7 @@ const PageSchema = new mongoose_1.Schema({
         tr: { type: String, }
     },
     status: { type: String, default: [true, "Please provide status in English"] },
+    featured: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

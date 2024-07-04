@@ -10,6 +10,7 @@ const pageField = (page: PageType, locale?: LocaleKeys) => {
         slug: page.slug,
         title: page.title[locale] || page.title,
         content: page.content[locale] || page.content,
+        featured: page.featured,
         createdAt: page.createdAt,
         updatedAt: page.updatedAt,
         status: page.status,
@@ -18,10 +19,9 @@ const pageField = (page: PageType, locale?: LocaleKeys) => {
 
 export const getPages = async (req: Request, res: Response): Promise<void> => {
     try {
-        const pages = await Pages.find();
-
-        const { locale, multiLocale } = req.query as unknown as queries;
-
+        const { locale, multiLocale, featured } = req.query as unknown as queries;
+        const query = featured ? { featured } : {};
+        const pages = await Pages.find(query);
         res.status(200).json({
             message: pages.length === 0 ? 'No pages found' : 'Successfully fetched all pages',
             pages: pages.map(page => multiLocale ? pageField(page) : pageField(page, locale)),

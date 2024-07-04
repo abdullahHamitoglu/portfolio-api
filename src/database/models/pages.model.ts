@@ -7,6 +7,7 @@ export type PageType = {
     title: { [key in LocaleKeys]: string },
     content: { [key in LocaleKeys]: string },
     status: string;
+    featured: boolean,
     createdAt: Date,
     updatedAt: Date,
 }
@@ -23,6 +24,7 @@ const PageSchema: Schema = new Schema({
         tr: { type: String, }
     },
     status: { type: String, default: [true, "Please provide status in English"] },
+    featured: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

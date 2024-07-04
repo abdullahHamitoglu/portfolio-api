@@ -20,6 +20,7 @@ const pageField = (page, locale) => {
         slug: page.slug,
         title: page.title[locale] || page.title,
         content: page.content[locale] || page.content,
+        featured: page.featured,
         createdAt: page.createdAt,
         updatedAt: page.updatedAt,
         status: page.status,
@@ -27,8 +28,9 @@ const pageField = (page, locale) => {
 };
 const getPages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const pages = yield pages_model_1.default.find();
-        const { locale, multiLocale } = req.query;
+        const { locale, multiLocale, featured } = req.query;
+        const query = featured ? { featured } : {};
+        const pages = yield pages_model_1.default.find(query);
         res.status(200).json({
             message: pages.length === 0 ? 'No pages found' : 'Successfully fetched all pages',
             pages: pages.map(page => multiLocale ? pageField(page) : pageField(page, locale)),
