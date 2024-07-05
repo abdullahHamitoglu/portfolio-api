@@ -60,7 +60,7 @@ export const gallery = async (req: Request, res: Response) => {
         }
 
         const images = files.filter(file => {
-            return `${/\.(jpg|jpeg|png|gif)$/.test(file)}`;
+            return `${/\.(jpg|jpeg|png|gif|webp|svg)$/.test(file)}`;
         });
 
         res.json(images.map((image) => (

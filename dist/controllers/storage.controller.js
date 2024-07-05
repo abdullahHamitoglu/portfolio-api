@@ -57,7 +57,7 @@ const gallery = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(500).json({ error: 'Unable to scan directory' });
         }
         const images = files.filter(file => {
-            return `${/\.(jpg|jpeg|png|gif)$/.test(file)}`;
+            return `${/\.(jpg|jpeg|png|gif|webp|svg)$/.test(file)}`;
         });
         res.json(images.map((image) => (`${req.protocol}://${req.get('host')}/uploads/${image}`)));
     });
