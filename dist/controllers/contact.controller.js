@@ -23,6 +23,8 @@ const contactFields = (contact, locale) => {
         email: contact.email,
         service: (0, category_controller_1.categoryFields)(contact.service, locale),
         message: contact.message,
+        createdAt: contact.createdAt,
+        updatedAt: contact.updatedAt,
     };
 };
 const createContactMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -32,10 +34,11 @@ const createContactMessage = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
     try {
         const contactMessage = new Contact_model_1.default(req.body);
+        const locale = req.query.locale || 'en';
         yield contactMessage.save();
         res.json({
             status: "success",
-            data: contactFields(contactMessage),
+            contact: contactFields(contactMessage, locale),
             message: "Contact message sent successfully",
         });
     }
@@ -51,6 +54,7 @@ exports.createContactMessage = createContactMessage;
 const getContactMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { page = 1, limit = 10 } = req.query;
+        const locale = req.query.locale || 'en';
         const messages = yield Contact_model_1.default
             .find()
             .populate('service')
@@ -60,7 +64,7 @@ const getContactMessages = (req, res) => __awaiter(void 0, void 0, void 0, funct
         const total = yield Contact_model_1.default.countDocuments();
         res.json({
             status: "success",
-            contacts: messages.map(massage => (contactFields(massage))),
+            contacts: messages.map(massage => (contactFields(massage, locale))),
             message: "Contact messages fetched successfully",
             total: total,
             page: Number(page),
@@ -79,6 +83,7 @@ exports.getContactMessages = getContactMessages;
 const getContactMessageById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const message = yield Contact_model_1.default.findById(req.params.id);
+        const locale = req.query.locale || 'en';
         if (!message) {
             return res.status(404).json({
                 status: "error",
@@ -87,7 +92,7 @@ const getContactMessageById = (req, res) => __awaiter(void 0, void 0, void 0, fu
         }
         res.json({
             status: "success",
-            contact: message,
+            contact: contactFields(message, locale),
             message: "Contact message fetched successfully",
         });
     }

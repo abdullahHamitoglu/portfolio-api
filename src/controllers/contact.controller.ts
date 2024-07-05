@@ -11,6 +11,8 @@ const contactFields = (contact: IContactMessage, locale?: LocaleKeys) => {
         email: contact.email,
         service: categoryFields(contact.service, locale),
         message: contact.message,
+        createdAt: contact.createdAt,
+        updatedAt: contact.updatedAt,
     }
 }
 export const createContactMessage = async (req: Request, res: Response) => {
@@ -20,11 +22,13 @@ export const createContactMessage = async (req: Request, res: Response) => {
     }
     try {
         const contactMessage: IContactMessage = new ContactMessage(req.body);
+        const locale = req.query.locale as LocaleKeys || 'en';
 
         await contactMessage.save();
+
         res.json({
             status: "success",
-            data: contactFields(contactMessage),
+            contact: contactFields(contactMessage, locale),
             message: "Contact message sent successfully",
         });
     } catch (error) {
@@ -40,6 +44,7 @@ export const createContactMessage = async (req: Request, res: Response) => {
 export const getContactMessages = async (req: Request, res: Response) => {
     try {
         const { page = 1, limit = 10 } = req.query;
+        const locale = req.query.locale as LocaleKeys || 'en';
 
         const messages: IContactMessage[] = await ContactMessage
             .find()
@@ -50,7 +55,7 @@ export const getContactMessages = async (req: Request, res: Response) => {
         const total = await ContactMessage.countDocuments();
         res.json({
             status: "success",
-            contacts: messages.map(massage => (contactFields(massage))),
+            contacts: messages.map(massage => (contactFields(massage, locale))),
             message: "Contact messages fetched successfully",
             total: total,
             page: Number(page),
@@ -68,6 +73,7 @@ export const getContactMessages = async (req: Request, res: Response) => {
 export const getContactMessageById = async (req: Request, res: Response) => {
     try {
         const message = await ContactMessage.findById(req.params.id);
+        const locale = req.query.locale as LocaleKeys || 'en';
         if (!message) {
             return res.status(404).json({
                 status: "error",
@@ -76,7 +82,7 @@ export const getContactMessageById = async (req: Request, res: Response) => {
         }
         res.json({
             status: "success",
-            contact: message,
+            contact: contactFields(message, locale),
             message: "Contact message fetched successfully",
         });
     } catch (error) {
