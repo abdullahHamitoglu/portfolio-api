@@ -97,6 +97,8 @@ export const getContactMessageById = async (req: Request, res: Response) => {
 export const deleteContactMessage = async (req: Request, res: Response) => {
     try {
         const message = await ContactMessage.findByIdAndDelete(req.params.id);
+        const locale = req.query.locale as LocaleKeys || 'en';
+
         if (!message) {
             return res.status(404).json({
                 status: "error",
@@ -105,7 +107,7 @@ export const deleteContactMessage = async (req: Request, res: Response) => {
         }
         res.json({
             status: "success",
-            data: message,
+            contact: contactFields(message, locale),
             message: "Contact message deleted successfully",
         });
     } catch (error) {

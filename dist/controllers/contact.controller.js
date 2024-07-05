@@ -108,6 +108,7 @@ exports.getContactMessageById = getContactMessageById;
 const deleteContactMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const message = yield Contact_model_1.default.findByIdAndDelete(req.params.id);
+        const locale = req.query.locale || 'en';
         if (!message) {
             return res.status(404).json({
                 status: "error",
@@ -116,7 +117,7 @@ const deleteContactMessage = (req, res) => __awaiter(void 0, void 0, void 0, fun
         }
         res.json({
             status: "success",
-            data: message,
+            contact: contactFields(message, locale),
             message: "Contact message deleted successfully",
         });
     }
