@@ -15,12 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteContactMessage = exports.getContactMessageById = exports.getContactMessages = exports.createContactMessage = void 0;
 const Contact_model_1 = __importDefault(require("../database/models/Contact.model"));
 const express_validator_1 = require("express-validator");
-const contactFields = (contact) => {
+const category_controller_1 = require("./category.controller");
+const contactFields = (contact, locale) => {
     return {
         id: contact._id,
         name: contact.name,
         email: contact.email,
-        service: contact.service,
+        service: (0, category_controller_1.categoryFields)(contact.service, locale),
         message: contact.message,
     };
 };

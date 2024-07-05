@@ -1,10 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { ICategory } from './category.model';
 
 export interface IContactMessage extends Document {
     name: string;
     email: string;
     message: string;
-    service: string;
+    service: ICategory;
     createdAt: Date;
     updatedAt: Date;
 }

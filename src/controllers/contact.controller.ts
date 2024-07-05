@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
 import ContactMessage, { IContactMessage } from "../database/models/Contact.model";
 import { validationResult } from "express-validator";
+import { categoryFields } from "./category.controller";
+import { LocaleKeys } from "index";
 
-const contactFields = (contact: IContactMessage) => {
+const contactFields = (contact: IContactMessage, locale?: LocaleKeys) => {
     return {
         id: contact._id,
         name: contact.name,
         email: contact.email,
-        service: contact.service,
+        service: categoryFields(contact.service, locale),
         message: contact.message,
     }
 }
