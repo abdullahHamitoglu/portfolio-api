@@ -72,8 +72,9 @@ export const getContactMessages = async (req: Request, res: Response) => {
 
 export const getContactMessageById = async (req: Request, res: Response) => {
     try {
-        const message = await ContactMessage.findById(req.params.id);
+        const message = await ContactMessage.findById(req.params.id).populate('service');
         const locale = req.query.locale as LocaleKeys || 'en';
+
         if (!message) {
             return res.status(404).json({
                 status: "error",

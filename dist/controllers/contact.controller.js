@@ -82,7 +82,7 @@ const getContactMessages = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.getContactMessages = getContactMessages;
 const getContactMessageById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const message = yield Contact_model_1.default.findById(req.params.id);
+        const message = yield Contact_model_1.default.findById(req.params.id).populate('service');
         const locale = req.query.locale || 'en';
         if (!message) {
             return res.status(404).json({
