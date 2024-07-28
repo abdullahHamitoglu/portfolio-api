@@ -8,6 +8,7 @@ export interface IOrder extends Document {
     status: string;
     createdAt: Date;
     updatedAt: Date;
+    user: mongoose.Schema.Types.ObjectId;
 }
 
 const orderSchema: Schema = new Schema({
@@ -18,6 +19,11 @@ const orderSchema: Schema = new Schema({
     status: { type: String, default: 'Pending', required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 });
 
 const Order = mongoose.model<IOrder>('Order', orderSchema);

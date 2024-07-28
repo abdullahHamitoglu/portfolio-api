@@ -10,6 +10,7 @@ export interface IExperience extends Document {
     description: string;
     createdAt: Date;
     updatedAt: Date;
+    user: mongoose.Schema.Types.ObjectId;
 }
 
 const experienceSchema: Schema = new Schema({
@@ -22,6 +23,11 @@ const experienceSchema: Schema = new Schema({
     description: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 });
 
 const Experience = mongoose.model<IExperience>('Experience', experienceSchema);

@@ -24,6 +24,6 @@ router.post('/user/create',
     createUser
 );
 router.delete('/user/:id', deleteUser);
-router.put('/profile', upload.fields([{ name: 'profilePicture', maxCount: 1 }]), authenticateToken, updateUserProfile);
+router.put('/profile', upload.fields([{ name: 'profile_picture', maxCount: 1 }]), authenticateToken, updateUserProfile);
 
 export const UsersRoutes: Router = router;

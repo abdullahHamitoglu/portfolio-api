@@ -14,6 +14,6 @@ router.post('/user/create', [
     (0, express_validator_1.check)('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
 ], handleValidationErrors_1.HandleValidationErrors, user_controller_1.createUser);
 router.delete('/user/:id', user_controller_1.deleteUser);
-router.put('/profile', user_controller_1.upload.fields([{ name: 'profilePicture', maxCount: 1 }]), authToken_1.authenticateToken, user_controller_1.updateUserProfile);
+router.put('/profile', user_controller_1.upload.fields([{ name: 'profile_picture', maxCount: 1 }]), authToken_1.authenticateToken, user_controller_1.updateUserProfile);
 exports.UsersRoutes = router;
 //# sourceMappingURL=user.route.js.map

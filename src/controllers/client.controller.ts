@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Client, { IClient } from '../database/models/Client.model';
+import Client, { IClient } from '../database/models/client.model';
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {
     try {

@@ -5,11 +5,13 @@ export interface IUser extends Document {
     email: string;
     password: string;
     resume: string;
-    profilePicture: string;
-    isAdmin: boolean;
+    profile_picture: string;
+    is_admin: boolean;
     createdAt: Date;
     updatedAt: Date;
-    isEmailVerified: boolean;
+    email_verified: boolean;
+    phone_verified: boolean;
+    role: 'admin' | 'customer' | 'editor' | 'general';
 }
 
 const userSchema = new Schema({
@@ -34,7 +36,7 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    isAdmin: {
+    is_admin: {
         type: Boolean,
         default: false,
     },
@@ -42,14 +44,23 @@ const userSchema = new Schema({
         type: String,
         default: null,
     },
-    profilePicture: {
+    profile_picture: {
         type: String,
         default: null,
     },
-    isEmailVerified: {
+    email_verified: {
         type: Boolean,
         default: false,
     },
+    phone_verified: {
+        type: Boolean,
+        default: false,
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'customer', 'editor', 'general'],
+        default: 'customer',
+    }
 });
 // create a model using the schema
 

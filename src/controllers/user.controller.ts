@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import User, { IUser } from '../database/models/User.model';
+import User, { IUser } from '../database/models/user.model';
 import { secretKey } from '../middleware/authToken';
 import multer from 'multer';
 import path from 'path';
@@ -24,17 +24,17 @@ const storage = multer.diskStorage({
 
 export const upload = multer({ storage });
 
-const userProfile = (user: IUser, req: Request) => {
+export const userProfile = (user: IUser, req: Request) => {
     return {
-        id: user.id,
+        id: user.id || user._id,
         name: user.name,
         email: user.email,
-        profilePicture: user.profilePicture ? `${req.protocol}://${req.get('host')}${user.profilePicture}` : '',
-        isEmailVerified: user.isEmailVerified,
+        profile_picture: user.profile_picture ? `${req.protocol}://${req.get('host')}${user.profile_picture}` : '',
+        email_verified: user.email_verified,
         resume: user.resume,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        isAdmin: user.isAdmin,
+        is_admin: user.is_admin,
     };
 }
 
@@ -127,15 +127,15 @@ export const updateUserProfile = async (req: any, res: Response) => {
         const updatedUserData = {
             ...user.toObject(),
             ...req.body,
-            profilePicture: user.profilePicture,
+            profile_picture: user.profile_picture,
         };
 
         // Save image to storage if provided
-        if (req.files && 'profilePicture' in req.files) {
-            const image = req.files['profilePicture'] as Express.Multer.File[];
+        if (req.files && 'profile_picture' in req.files) {
+            const image = req.files['profile_picture'] as Express.Multer.File[];
             if (image.length > 0) {
                 const imageFile = image[0]; // Assuming only one file per field
-                updatedUserData.profilePicture = `/uploads/${imageFile.filename}`;
+                updatedUserData.profile_picture = `/uploads/${imageFile.filename}`;
             }
         }
 

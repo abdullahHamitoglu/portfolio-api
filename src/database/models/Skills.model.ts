@@ -4,6 +4,7 @@ export interface ISkill extends Document {
     _id: string;
     title: string;
     image: string;
+    user: mongoose.Schema.Types.ObjectId;
 }
 
 const skillSchema = new Schema({
@@ -23,6 +24,11 @@ const skillSchema = new Schema({
     updatedAt: {
         type: Date,
         default: Date.now,
+    },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 });
 

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ContactMessage, { IContactMessage } from "../database/models/Contact.model";
+import ContactMessage, { IContactMessage } from "../database/models/contact.model";
 import { validationResult } from "express-validator";
 import { categoryFields } from "./category.controller";
 import { LocaleKeys } from "index";

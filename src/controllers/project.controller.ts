@@ -1,8 +1,10 @@
-import Project, { IProject } from "../database/models/Projects.model";
+import Project, { IProject } from "../database/models/projects.model";
 import { Request, Response } from "express";
 import { LocaleKeys } from "index";
 import { categoryFields } from "./category.controller";
 import { ICategory } from "../database/models/category.model";
+import { IUser } from "../database/models/user.model";
+import { userProfile } from "./user.controller";
 
 const projectFields = (project: IProject, locale?: LocaleKeys) => ({
     id: project._id,
@@ -15,6 +17,7 @@ const projectFields = (project: IProject, locale?: LocaleKeys) => ({
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
     category: categoryFields(project.category as ICategory, locale),
+    user: project.user ? userProfile(project.user as IUser, {} as any) : ''
 });
 
 async function getAllProjects(req: Request, res: Response) {
@@ -22,7 +25,7 @@ async function getAllProjects(req: Request, res: Response) {
         const { page = 1, limit = 10, featured, multiLocale } = req.query;
         const locale = req.query.locale as LocaleKeys || 'en';
 
-        const query: any = {};
+        const query: any = req.query;
         if (featured) {
             query.featured = featured === 'true';
         }
@@ -36,9 +39,10 @@ async function getAllProjects(req: Request, res: Response) {
         }
 
         const projects = await Project.find(query)
-            .populate('category') // Populate the category field
             .skip((Number(page) - 1) * Number(limit))
-            .limit(Number(limit));
+            .limit(Number(limit))
+            .populate('category')
+            .populate('user');
 
         const totalProjects = await Project.countDocuments(query);
 
@@ -61,7 +65,7 @@ async function getProjectById(req: Request, res: Response) {
         const locale = req.query.locale as LocaleKeys || 'en';
         const multiLocale = req.query.multiLocale;
 
-        const project = await Project.findById(req.params.id).populate('category');
+        const project = await Project.findById(req.params.id).populate('category').populate('user');
         if (!project) {
             return res.status(404).json({
                 status: 'error',
@@ -105,7 +109,7 @@ async function updateProject(req: Request, res: Response) {
         let project = await Project.findOneAndUpdate({ _id: req.params.id }, req.body, {
             new: true,
             runValidators: true,
-        });
+        }).populate('category').populate('user');
 
         if (!project) {
             return res.status(404).json({
@@ -115,9 +119,7 @@ async function updateProject(req: Request, res: Response) {
         }
 
         if (req.body.images) {
-            // Add new images to the existing ones
             project.images = [...project.images, ...req.body.images];
-            // filter same images 
             project.images = project.images.filter((image, index, self) => self.indexOf(image) === index);
             await project.save();
         }

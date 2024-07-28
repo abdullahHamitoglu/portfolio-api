@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import jwt from 'jsonwebtoken';
-import User, { IUser } from "../database/models/User.model";
+import User, { IUser } from "../database/models/user.model";
 
 export const secretKey = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcxNDIyMTUyNywiaWF0IjoxNzE0MjIxNTI3fQ.s3yQikiTmhhHHh2QKiozLT8RswK0LATLVZ2ktfTkfhs";
 

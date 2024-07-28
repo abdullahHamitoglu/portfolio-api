@@ -9,7 +9,8 @@ export interface IClient extends Document {
     lastName: string;
     email: string;
     phoneNumber: string;
-    profilePicture: string;
+    profile_picture: string;
+    user: mongoose.Schema.Types.ObjectId;
 }
 
 // Define the schema
@@ -46,9 +47,14 @@ const clientSchema: Schema<IClient> = new mongoose.Schema({
         type: String,
         required: true
     },
-    profilePicture: {
+    profile_picture: {
         type: String,
         required: true
+    },
+    user: {
+        // Assuming 'User' is the name of the related model
+        type: mongoose.Schema.Types.ObjectId, ref: 'User',
+        required: false
     }
 });
 

@@ -10,6 +10,7 @@ export type PageType = {
     featured: boolean,
     createdAt: Date,
     updatedAt: Date,
+    user: mongoose.Schema.Types.ObjectId,
 }
 const PageSchema: Schema = new Schema({
     slug: { type: String, required: true },
@@ -26,7 +27,12 @@ const PageSchema: Schema = new Schema({
     status: { type: String, default: [true, "Please provide status in English"] },
     featured: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 });
 
 const Pages = mongoose.model<PageType>('Pages', PageSchema);

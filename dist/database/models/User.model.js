@@ -46,7 +46,7 @@ const userSchema = new mongoose_1.Schema({
         type: Date,
         default: Date.now,
     },
-    isAdmin: {
+    is_admin: {
         type: Boolean,
         default: false,
     },
@@ -54,11 +54,11 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         default: null,
     },
-    profilePicture: {
+    profile_picture: {
         type: String,
         default: null,
     },
-    isEmailVerified: {
+    email_verified: {
         type: Boolean,
         default: false,
     },

@@ -1,5 +1,6 @@
 import { LocaleKeys } from 'index';
 import mongoose, { Schema, Document } from 'mongoose';
+import { validate } from 'uuid';
 
 export interface IProject extends Document {
     updatedAt: Date;
@@ -11,6 +12,7 @@ export interface IProject extends Document {
     status: string;
     featured: boolean;
     category: string | object;
+    user: string | object;
 }
 
 const projectSchema = new Schema({
@@ -87,6 +89,11 @@ const projectSchema = new Schema({
         ref: 'Category',
         required: true
     },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    }
 });
 
 // Create a model using the schema

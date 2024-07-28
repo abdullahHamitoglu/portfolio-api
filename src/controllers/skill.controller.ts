@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Skill, { ISkill } from "../database/models/Skills.model";
+import Skill, { ISkill } from "../database/models/skills.model";
 import { check } from "express-validator";
 import multer from 'multer';
 import path from 'path';

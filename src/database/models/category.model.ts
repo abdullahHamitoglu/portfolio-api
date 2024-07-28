@@ -7,6 +7,7 @@ export interface ICategory extends Document {
     status: string;
     createdAt: Date;
     updatedAt: Date;
+    user: mongoose.Schema.Types.ObjectId;
 }
 
 const categorySchema: Schema = new Schema({
@@ -24,6 +25,11 @@ const categorySchema: Schema = new Schema({
     status: { type: String, default: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 });
 
 const Category = mongoose.model<ICategory>('Category', categorySchema);

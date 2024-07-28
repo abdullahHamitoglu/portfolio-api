@@ -8,6 +8,7 @@ export interface IContactMessage extends Document {
     service: ICategory;
     createdAt: Date;
     updatedAt: Date;
+    user: mongoose.Schema.Types.ObjectId;
 }
 
 const contactMessageSchema: Schema = new Schema({
@@ -21,6 +22,11 @@ const contactMessageSchema: Schema = new Schema({
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    user: {
+        // Assuming 'User' is the name of the related model
+        type: mongoose.Schema.Types.ObjectId, ref: 'User',
+        required: false
+    }
 });
 
 const ContactMessage = mongoose.model<IContactMessage>('ContactMessage', contactMessageSchema);

@@ -35,12 +35,12 @@ const userProfile = (user, req) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        profilePicture: user.profilePicture ? `${req.protocol}://${req.get('host')}${user.profilePicture}` : '',
-        isEmailVerified: user.isEmailVerified,
+        profile_picture: user.profile_picture ? `${req.protocol}://${req.get('host')}${user.profile_picture}` : '',
+        email_verified: user.email_verified,
         resume: user.resume,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        isAdmin: user.isAdmin,
+        is_admin: user.is_admin,
     };
 };
 const getUserProfile = (req, res) => {
@@ -124,12 +124,12 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 user: null,
             });
         }
-        const updatedUserData = Object.assign(Object.assign(Object.assign({}, user.toObject()), req.body), { profilePicture: user.profilePicture });
-        if (req.files && 'profilePicture' in req.files) {
-            const image = req.files['profilePicture'];
+        const updatedUserData = Object.assign(Object.assign(Object.assign({}, user.toObject()), req.body), { profile_picture: user.profile_picture });
+        if (req.files && 'profile_picture' in req.files) {
+            const image = req.files['profile_picture'];
             if (image.length > 0) {
                 const imageFile = image[0];
-                updatedUserData.profilePicture = `/uploads/${imageFile.filename}`;
+                updatedUserData.profile_picture = `/uploads/${imageFile.filename}`;
             }
         }
         user.set(updatedUserData);
