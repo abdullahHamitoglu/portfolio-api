@@ -12,15 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
+exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.updateUser = exports.getUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_model_1 = __importDefault(require("../database/models/User.model"));
 const authToken_1 = require("../middleware/authToken");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const basePath = path_1.default.join(__dirname, '../../public/uploads');
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
+        if (!fs_1.default.existsSync(basePath)) {
+            fs_1.default.mkdirSync(basePath, { recursive: true });
+        }
         cb(null, basePath);
     },
     filename: (req, file, cb) => {
@@ -68,6 +72,65 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUsers = getUsers;
+const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_model_1.default.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        res.json({
+            status: 'success',
+            user: (0, exports.userProfile)(user, req),
+            message: 'User fetched successfully',
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching user' });
+    }
+});
+exports.getUser = getUser;
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_model_1.default.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        console.log(req.body);
+        const updatedUserData = Object.assign(Object.assign(Object.assign({}, user.toObject()), req.body), { updatedAt: new Date() });
+        if (req.files && 'profile_picture' in req.files) {
+            const image = req.files['profile_picture'];
+            if (image.length > 0) {
+                const imageFile = image[0];
+                updatedUserData.profile_picture = `/uploads/${imageFile.filename}`;
+            }
+        }
+        user.set(updatedUserData);
+        yield user.save();
+        res.json({
+            status: 'success',
+            user: (0, exports.userProfile)(user, req),
+            message: 'User updated successfully',
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'error',
+            user: null,
+            message: error.message ? error.message : error.toString(),
+        });
+    }
+});
+exports.updateUser = updateUser;
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const existingUser = yield User_model_1.default.findOne({ email: req.body.email });
