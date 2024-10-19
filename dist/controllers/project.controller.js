@@ -13,8 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.projectFields = exports.deleteAllProjects = exports.deleteProject = exports.updateProject = exports.createProject = exports.getProjectById = exports.getAllProjects = void 0;
-const Projects_model_1 = __importDefault(require("../database/models/Projects.model"));
+const projects_model_1 = __importDefault(require("../database/models/projects.model"));
 const category_controller_1 = require("./category.controller");
+const user_controller_1 = require("./user.controller");
 const projectFields = (project, locale) => ({
     id: project._id,
     title: locale ? project.title[locale] : project.title,
@@ -26,6 +27,7 @@ const projectFields = (project, locale) => ({
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
     category: (0, category_controller_1.categoryFields)(project.category, locale),
+    user: project.user ? (0, user_controller_1.userProfile)(project.user, {}) : ''
 });
 exports.projectFields = projectFields;
 function getAllProjects(req, res) {
@@ -33,7 +35,7 @@ function getAllProjects(req, res) {
         try {
             const { page = 1, limit = 10, featured, multiLocale } = req.query;
             const locale = req.query.locale || 'en';
-            const query = {};
+            const query = req.query;
             if (featured) {
                 query.featured = featured === 'true';
             }
@@ -46,11 +48,12 @@ function getAllProjects(req, res) {
             else {
                 query.status = 'active';
             }
-            const projects = yield Projects_model_1.default.find(query)
-                .populate('category')
+            const projects = yield projects_model_1.default.find(query)
                 .skip((Number(page) - 1) * Number(limit))
-                .limit(Number(limit));
-            const totalProjects = yield Projects_model_1.default.countDocuments(query);
+                .limit(Number(limit))
+                .populate('category')
+                .populate('user');
+            const totalProjects = yield projects_model_1.default.countDocuments(query);
             res.json({
                 status: 'success',
                 message: req.t('projects_fetched_successfully'),
@@ -72,7 +75,7 @@ function getProjectById(req, res) {
         try {
             const locale = req.query.locale || 'en';
             const multiLocale = req.query.multiLocale;
-            const project = yield Projects_model_1.default.findById(req.params.id).populate('category');
+            const project = yield projects_model_1.default.findById(req.params.id).populate('category').populate('user');
             if (!project) {
                 return res.status(404).json({
                     status: 'error',
@@ -97,7 +100,7 @@ function createProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const locale = req.query.locale || 'en';
-            const project = yield Projects_model_1.default.create(req.body);
+            const project = yield projects_model_1.default.create(req.body);
             res.json({
                 status: 'success',
                 project: projectFields(project),
@@ -119,10 +122,10 @@ function updateProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const locale = req.query.locale || 'en';
-            let project = yield Projects_model_1.default.findOneAndUpdate({ _id: req.params.id }, req.body, {
+            let project = yield projects_model_1.default.findOneAndUpdate({ _id: req.params.id }, req.body, {
                 new: true,
                 runValidators: true,
-            });
+            }).populate('category').populate('user');
             if (!project) {
                 return res.status(404).json({
                     status: 'error',
@@ -150,7 +153,7 @@ exports.updateProject = updateProject;
 function deleteProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const project = yield Projects_model_1.default.findByIdAndDelete(req.params.id);
+            const project = yield projects_model_1.default.findByIdAndDelete(req.params.id);
             if (!project) {
                 return res.status(404).json({
                     status: 'error',
@@ -174,7 +177,7 @@ exports.deleteProject = deleteProject;
 function deleteAllProjects(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const projects = yield Projects_model_1.default.find();
+            const projects = yield projects_model_1.default.find();
             if (projects.length === 0) {
                 return res.status(404).json({
                     status: 'error',
@@ -182,7 +185,7 @@ function deleteAllProjects(req, res) {
                     data: null,
                 });
             }
-            yield Projects_model_1.default.deleteMany({});
+            yield projects_model_1.default.deleteMany({});
             res.json({
                 status: 'success',
                 data: null,

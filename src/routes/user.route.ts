@@ -8,6 +8,8 @@ import {
     deleteUser,
     updateUserProfile,
     upload,
+    getUser,
+    updateUser,
 } from '../controllers/user.controller';
 import { HandleValidationErrors } from '../middleware/handleValidationErrors';
 
@@ -15,6 +17,8 @@ const router = Router();
 
 router.get('/profile', authenticateToken, getUserProfile);
 router.get('/users', getUsers);
+router.get('/users/:id', getUser);
+router.put('/users/:id', authenticateToken, updateUser);
 router.post('/user/create',
     [
         check('email').isEmail().withMessage('Valid email is required'),

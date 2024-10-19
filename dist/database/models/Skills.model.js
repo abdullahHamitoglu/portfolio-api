@@ -41,8 +41,13 @@ const skillSchema = new mongoose_1.Schema({
     updatedAt: {
         type: Date,
         default: Date.now,
+    },
+    user: {
+        type: mongoose_1.default.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 });
 const Skill = mongoose_1.default.model('Skill', skillSchema);
 exports.default = Skill;
-//# sourceMappingURL=Skills.model.js.map
+//# sourceMappingURL=skills.model.js.map

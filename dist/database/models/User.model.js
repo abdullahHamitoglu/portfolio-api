@@ -62,7 +62,16 @@ const userSchema = new mongoose_1.Schema({
         type: Boolean,
         default: false,
     },
+    phone_verified: {
+        type: Boolean,
+        default: false,
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'customer', 'editor', 'general'],
+        default: 'customer',
+    }
 });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;
-//# sourceMappingURL=User.model.js.map
+//# sourceMappingURL=user.model.js.map

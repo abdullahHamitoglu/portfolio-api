@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteContactMessage = exports.getContactMessageById = exports.getContactMessages = exports.createContactMessage = void 0;
-const Contact_model_1 = __importDefault(require("../database/models/Contact.model"));
+const contact_model_1 = __importDefault(require("../database/models/contact.model"));
 const express_validator_1 = require("express-validator");
 const category_controller_1 = require("./category.controller");
 const contactFields = (contact, locale) => {
@@ -33,7 +33,7 @@ const createContactMessage = (req, res) => __awaiter(void 0, void 0, void 0, fun
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const contactMessage = new Contact_model_1.default(req.body);
+        const contactMessage = new contact_model_1.default(req.body);
         const locale = req.query.locale || 'en';
         yield contactMessage.save();
         res.json({
@@ -55,13 +55,13 @@ const getContactMessages = (req, res) => __awaiter(void 0, void 0, void 0, funct
     try {
         const { page = 1, limit = 10 } = req.query;
         const locale = req.query.locale || 'en';
-        const messages = yield Contact_model_1.default
+        const messages = yield contact_model_1.default
             .find()
             .populate('service')
             .skip((Number(page) - 1) * Number(limit))
             .limit(Number(limit));
         ;
-        const total = yield Contact_model_1.default.countDocuments();
+        const total = yield contact_model_1.default.countDocuments();
         res.json({
             status: "success",
             contacts: messages.map(massage => (contactFields(massage, locale))),
@@ -82,7 +82,7 @@ const getContactMessages = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.getContactMessages = getContactMessages;
 const getContactMessageById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const message = yield Contact_model_1.default.findById(req.params.id).populate('service');
+        const message = yield contact_model_1.default.findById(req.params.id).populate('service');
         const locale = req.query.locale || 'en';
         if (!message) {
             return res.status(404).json({
@@ -107,7 +107,7 @@ const getContactMessageById = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.getContactMessageById = getContactMessageById;
 const deleteContactMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const message = yield Contact_model_1.default.findByIdAndDelete(req.params.id);
+        const message = yield contact_model_1.default.findByIdAndDelete(req.params.id);
         const locale = req.query.locale || 'en';
         if (!message) {
             return res.status(404).json({

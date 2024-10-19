@@ -4,6 +4,7 @@ import User, { IUser } from '../database/models/user.model';
 import { secretKey } from '../middleware/authToken';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs'
 
 // Set base path for uploads based on environment
 const basePath = path.join(__dirname, '../../public/uploads');
@@ -12,7 +13,12 @@ const basePath = path.join(__dirname, '../../public/uploads');
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // Specify the destination directory for file uploads
+        // Ensure the directory exists
+        if (!fs.existsSync(basePath)) {
+            fs.mkdirSync(basePath, { recursive: true });
+        }
         cb(null, basePath);
+
     },
     filename: (req, file, cb) => {
         // Specify the filename for the uploaded file
@@ -59,6 +65,76 @@ export const getUsers = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error fetching users' });
     }
 };
+
+// get single user 
+export const getUser = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        res.json({
+            status: 'success',
+            user: userProfile(user, req),
+            message: 'User fetched successfully',
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching user' });
+    }
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        console.log(req.body);
+        
+        // Merge user data with updated fields
+        const updatedUserData = {
+            ...user.toObject(),
+            ...req.body,
+            updatedAt: new Date(),
+        };
+
+        // Save image to storage if provided
+        if (req.files && 'profile_picture' in req.files) {
+            const image = req.files['profile_picture'] as Express.Multer.File[];
+            if (image.length > 0) {
+                const imageFile = image[0]; // Assuming only one file per field
+                updatedUserData.profile_picture = `/uploads/${imageFile.filename}`;
+            }
+        }
+
+        // Update user with new data
+        user.set(updatedUserData);
+
+        await user.save();
+        res.json({
+            status: 'success',
+            user: userProfile(user, req),
+            message: 'User updated successfully',
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'error',
+            user: null,
+            message: error.message ? error.message : error.toString(),
+        });
+    }
+};
+
 export const createUser = async (req: Request, res: Response) => {
     try {
         const existingUser = await User.findOne({ email: req.body.email });
@@ -73,7 +149,7 @@ export const createUser = async (req: Request, res: Response) => {
         const user = new User(req.body);
         const token = jwt.sign({ userId: user._id || user.id }, secretKey, { expiresIn: '24h' });
         await user.save();
-        
+
         res.json({
             status: 'success',
             user: {

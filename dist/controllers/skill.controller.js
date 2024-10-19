@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateSkill = exports.deleteSkill = exports.getSkillById = exports.getSkills = exports.createSkill = exports.upload = void 0;
-const Skills_model_1 = __importDefault(require("../database/models/Skills.model"));
+const skills_model_1 = __importDefault(require("../database/models/skills.model"));
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const basePath = path_1.default.join(__dirname, '../../public/uploads/');
@@ -30,7 +30,7 @@ const storage = multer_1.default.diskStorage({
 exports.upload = (0, multer_1.default)({ storage });
 const createSkill = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const skill = new Skills_model_1.default(req.body);
+        const skill = new skills_model_1.default(req.body);
         if (req.files && 'image' in req.files) {
             const image = req.files['image'];
             if (image.length > 0) {
@@ -59,7 +59,7 @@ const createSkill = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.createSkill = createSkill;
 const getSkills = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const skills = yield Skills_model_1.default.find();
+    const skills = yield skills_model_1.default.find();
     res.json({
         status: "success",
         data: skills.map(skill => ({
@@ -72,7 +72,7 @@ const getSkills = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getSkills = getSkills;
 const getSkillById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const skill = yield Skills_model_1.default.findById(req.params.id);
+    const skill = yield skills_model_1.default.findById(req.params.id);
     res.json({
         status: "success",
         data: skill,
@@ -81,7 +81,7 @@ const getSkillById = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.getSkillById = getSkillById;
 const deleteSkill = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const skill = yield Skills_model_1.default.findByIdAndDelete(req.params.id);
+    const skill = yield skills_model_1.default.findByIdAndDelete(req.params.id);
     res.json({
         status: "success",
         data: {
@@ -94,7 +94,7 @@ const deleteSkill = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.deleteSkill = deleteSkill;
 const updateSkill = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const skill = yield Skills_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const skill = yield skills_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({
         status: "success",
         data: {

@@ -16,7 +16,7 @@ exports.AuthRoutes = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_1 = require("express");
 const express_validator_1 = require("express-validator");
-const User_model_1 = __importDefault(require("../database/models/User.model"));
+const user_model_1 = __importDefault(require("../database/models/user.model"));
 const authToken_1 = require("../middleware/authToken");
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const fs_1 = __importDefault(require("fs"));
@@ -31,7 +31,7 @@ router.post('/login', [
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const user = yield User_model_1.default.findOne({ email: req.body.email });
+        const user = yield user_model_1.default.findOne({ email: req.body.email });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -72,7 +72,7 @@ router.post('/send-reset-password', [
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const user = yield User_model_1.default.findOne({ email: req.body.email });
+        const user = yield user_model_1.default.findOne({ email: req.body.email });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -147,7 +147,7 @@ router.post('/reset-password', [
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(req.body.token, authToken_1.secretKey);
-        const user = yield User_model_1.default.findOne({ email: decoded.email });
+        const user = yield user_model_1.default.findOne({ email: decoded.email });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -197,7 +197,7 @@ router.put('/change-password', authToken_1.authenticateToken, [
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const user = yield User_model_1.default.findById(req.body.user_id);
+        const user = yield user_model_1.default.findById(req.body.user_id);
         if (!user) {
             return res.status(404).json({
                 status: 'error',

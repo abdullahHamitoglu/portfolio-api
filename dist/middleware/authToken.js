@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticateToken = exports.secretKey = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_model_1 = __importDefault(require("../database/models/User.model"));
+const user_model_1 = __importDefault(require("../database/models/user.model"));
 exports.secretKey = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcxNDIyMTUyNywiaWF0IjoxNzE0MjIxNTI3fQ.s3yQikiTmhhHHh2QKiozLT8RswK0LATLVZ2ktfTkfhs";
 const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const authHeader = req.headers.authorization;
@@ -33,7 +33,7 @@ const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, exports.secretKey);
-        const user = yield User_model_1.default.findById(decoded.userId);
+        const user = yield user_model_1.default.findById(decoded.userId);
         if (!user) {
             res.status(404).json({
                 status: 'error',

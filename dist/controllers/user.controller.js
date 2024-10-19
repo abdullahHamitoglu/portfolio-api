@@ -12,15 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.getUsers = exports.getUserProfile = exports.upload = void 0;
+exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.updateUser = exports.getUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_model_1 = __importDefault(require("../database/models/User.model"));
+const user_model_1 = __importDefault(require("../database/models/user.model"));
 const authToken_1 = require("../middleware/authToken");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const basePath = path_1.default.join(__dirname, '../../public/uploads');
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
+        if (!fs_1.default.existsSync(basePath)) {
+            fs_1.default.mkdirSync(basePath, { recursive: true });
+        }
         cb(null, basePath);
     },
     filename: (req, file, cb) => {
@@ -32,7 +36,7 @@ const storage = multer_1.default.diskStorage({
 exports.upload = (0, multer_1.default)({ storage });
 const userProfile = (user, req) => {
     return {
-        id: user.id,
+        id: user.id || user._id,
         name: user.name,
         email: user.email,
         profile_picture: user.profile_picture ? `${req.protocol}://${req.get('host')}${user.profile_picture}` : '',
@@ -43,21 +47,22 @@ const userProfile = (user, req) => {
         is_admin: user.is_admin,
     };
 };
+exports.userProfile = userProfile;
 const getUserProfile = (req, res) => {
     const user = req.user;
     res.json({
         status: 'success',
-        user: userProfile(user, req),
+        user: (0, exports.userProfile)(user, req),
         message: 'User profile fetched successfully',
     });
 };
 exports.getUserProfile = getUserProfile;
 const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield User_model_1.default.find();
+        const users = yield user_model_1.default.find();
         res.json({
             status: 'success',
-            users: users.map((user) => userProfile(user, req)),
+            users: users.map((user) => (0, exports.userProfile)(user, req)),
             message: 'Users fetched successfully',
         });
     }
@@ -66,9 +71,68 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUsers = getUsers;
+const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield user_model_1.default.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        res.json({
+            status: 'success',
+            user: (0, exports.userProfile)(user, req),
+            message: 'User fetched successfully',
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching user' });
+    }
+});
+exports.getUser = getUser;
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield user_model_1.default.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        console.log(req.body);
+        const updatedUserData = Object.assign(Object.assign(Object.assign({}, user.toObject()), req.body), { updatedAt: new Date() });
+        if (req.files && 'profile_picture' in req.files) {
+            const image = req.files['profile_picture'];
+            if (image.length > 0) {
+                const imageFile = image[0];
+                updatedUserData.profile_picture = `/uploads/${imageFile.filename}`;
+            }
+        }
+        user.set(updatedUserData);
+        yield user.save();
+        res.json({
+            status: 'success',
+            user: (0, exports.userProfile)(user, req),
+            message: 'User updated successfully',
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'error',
+            user: null,
+            message: error.message ? error.message : error.toString(),
+        });
+    }
+});
+exports.updateUser = updateUser;
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const existingUser = yield User_model_1.default.findOne({ email: req.body.email });
+        const existingUser = yield user_model_1.default.findOne({ email: req.body.email });
         if (existingUser) {
             return res.status(400).json({
                 status: 'error',
@@ -76,12 +140,12 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 data: null,
             });
         }
-        const user = new User_model_1.default(req.body);
+        const user = new user_model_1.default(req.body);
         const token = jsonwebtoken_1.default.sign({ userId: user._id || user.id }, authToken_1.secretKey, { expiresIn: '24h' });
         yield user.save();
         res.json({
             status: 'success',
-            user: Object.assign(Object.assign({}, userProfile(user, req)), { token }),
+            user: Object.assign(Object.assign({}, (0, exports.userProfile)(user, req)), { token }),
             message: 'User created successfully',
         });
     }
@@ -93,7 +157,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.createUser = createUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_model_1.default.findByIdAndDelete(req.params.id);
+        const user = yield user_model_1.default.findByIdAndDelete(req.params.id);
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -116,7 +180,7 @@ exports.deleteUser = deleteUser;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.updatedAt = new Date();
     try {
-        const user = yield User_model_1.default.findById(req.user._id);
+        const user = yield user_model_1.default.findById(req.user._id);
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -136,7 +200,7 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
         yield user.save();
         res.json({
             status: 'success',
-            user: userProfile(user, req),
+            user: (0, exports.userProfile)(user, req),
             message: 'User updated successfully',
         });
     }

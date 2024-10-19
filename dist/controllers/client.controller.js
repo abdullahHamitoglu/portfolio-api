@@ -13,10 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getClientsCount = exports.deleteClient = exports.updateClient = exports.getClientById = exports.getClients = exports.createClient = void 0;
-const Client_model_1 = __importDefault(require("../database/models/Client.model"));
+const client_model_1 = __importDefault(require("../database/models/client.model"));
 const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const client = new Client_model_1.default(req.body);
+        const client = new client_model_1.default(req.body);
         const newClient = yield client.save();
         res.status(201).json(newClient);
     }
@@ -27,7 +27,7 @@ const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.createClient = createClient;
 const getClients = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const clients = yield Client_model_1.default.find();
+        const clients = yield client_model_1.default.find();
         res.status(200).json(clients);
     }
     catch (error) {
@@ -37,7 +37,7 @@ const getClients = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.getClients = getClients;
 const getClientById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const client = yield Client_model_1.default.findById(req.params.id);
+        const client = yield client_model_1.default.findById(req.params.id);
         if (client) {
             res.status(200).json(client);
         }
@@ -52,7 +52,7 @@ const getClientById = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.getClientById = getClientById;
 const updateClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const client = yield Client_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const client = yield client_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (client) {
             res.status(200).json(client);
         }
@@ -67,7 +67,7 @@ const updateClient = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.updateClient = updateClient;
 const deleteClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const client = yield Client_model_1.default.findByIdAndDelete(req.params.id);
+        const client = yield client_model_1.default.findByIdAndDelete(req.params.id);
         if (client) {
             res.status(200).json({ message: 'Client deleted' });
         }
@@ -82,7 +82,7 @@ const deleteClient = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.deleteClient = deleteClient;
 const getClientsCount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const count = yield Client_model_1.default.countDocuments();
+        const count = yield client_model_1.default.countDocuments();
         res.status(200).json({ count });
     }
     catch (error) {

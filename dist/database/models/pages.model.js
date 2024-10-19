@@ -39,7 +39,12 @@ const PageSchema = new mongoose_1.Schema({
     status: { type: String, default: [true, "Please provide status in English"] },
     featured: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    user: {
+        type: mongoose_1.default.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 });
 const Pages = mongoose_1.default.model('Pages', PageSchema);
 exports.default = Pages;

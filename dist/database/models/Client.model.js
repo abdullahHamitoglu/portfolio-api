@@ -40,6 +40,10 @@ const clientSchema = new mongoose_1.default.Schema({
     profile_picture: {
         type: String,
         required: true
+    },
+    user: {
+        type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User',
+        required: false
     }
 });
 clientSchema.pre('save', function (next) {
@@ -48,4 +52,4 @@ clientSchema.pre('save', function (next) {
 });
 const Client = mongoose_1.default.model('Client', clientSchema);
 exports.default = Client;
-//# sourceMappingURL=Client.model.js.map
+//# sourceMappingURL=client.model.js.map
