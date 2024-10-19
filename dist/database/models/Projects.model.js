@@ -98,6 +98,11 @@ const projectSchema = new mongoose_1.Schema({
         ref: 'Category',
         required: true
     },
+    user: {
+        type: mongoose_1.default.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    }
 });
 const Project = mongoose_1.default.model('Project', projectSchema);
 exports.default = Project;

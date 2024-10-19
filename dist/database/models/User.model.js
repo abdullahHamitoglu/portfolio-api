@@ -58,10 +58,23 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         default: null,
     },
+    domain: {
+        type: String,
+        default: null,
+    },
     email_verified: {
         type: Boolean,
         default: false,
     },
+    phone_verified: {
+        type: Boolean,
+        default: false,
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'customer', 'editor', 'general'],
+        default: 'customer',
+    }
 });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

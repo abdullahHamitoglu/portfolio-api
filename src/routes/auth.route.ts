@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import express, { Router } from "express";
 import { validationResult, check } from 'express-validator';
-import User, { IUser } from "../database/models/user.model";
+import User, { IUser } from "../database/models/User.model";
 import { authenticateToken, secretKey } from '../middleware/authToken';
 import nodemailer from 'nodemailer';
 import fs from 'fs';

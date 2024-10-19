@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.projectFields = exports.deleteAllProjects = exports.deleteProject = exports.updateProject = exports.createProject = exports.getProjectById = exports.getAllProjects = void 0;
 const Projects_model_1 = __importDefault(require("../database/models/Projects.model"));
 const category_controller_1 = require("./category.controller");
+const user_controller_1 = require("./user.controller");
 const projectFields = (project, locale) => ({
     id: project._id,
     title: locale ? project.title[locale] : project.title,
@@ -26,6 +27,7 @@ const projectFields = (project, locale) => ({
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
     category: (0, category_controller_1.categoryFields)(project.category, locale),
+    user: project.user ? (0, user_controller_1.userProfile)(project.user, {}) : ''
 });
 exports.projectFields = projectFields;
 function getAllProjects(req, res) {
@@ -33,7 +35,7 @@ function getAllProjects(req, res) {
         try {
             const { page = 1, limit = 10, featured, multiLocale } = req.query;
             const locale = req.query.locale || 'en';
-            const query = {};
+            const query = req.query;
             if (featured) {
                 query.featured = featured === 'true';
             }
@@ -47,9 +49,10 @@ function getAllProjects(req, res) {
                 query.status = 'active';
             }
             const projects = yield Projects_model_1.default.find(query)
-                .populate('category')
                 .skip((Number(page) - 1) * Number(limit))
-                .limit(Number(limit));
+                .limit(Number(limit))
+                .populate('category')
+                .populate('user');
             const totalProjects = yield Projects_model_1.default.countDocuments(query);
             res.json({
                 status: 'success',
@@ -72,7 +75,7 @@ function getProjectById(req, res) {
         try {
             const locale = req.query.locale || 'en';
             const multiLocale = req.query.multiLocale;
-            const project = yield Projects_model_1.default.findById(req.params.id).populate('category');
+            const project = yield Projects_model_1.default.findById(req.params.id).populate('category').populate('user');
             if (!project) {
                 return res.status(404).json({
                     status: 'error',
@@ -122,7 +125,7 @@ function updateProject(req, res) {
             let project = yield Projects_model_1.default.findOneAndUpdate({ _id: req.params.id }, req.body, {
                 new: true,
                 runValidators: true,
-            });
+            }).populate('category').populate('user');
             if (!project) {
                 return res.status(404).json({
                     status: 'error',

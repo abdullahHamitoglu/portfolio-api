@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.getUsers = exports.getUserProfile = exports.upload = void 0;
+exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_model_1 = __importDefault(require("../database/models/User.model"));
 const authToken_1 = require("../middleware/authToken");
@@ -32,7 +32,7 @@ const storage = multer_1.default.diskStorage({
 exports.upload = (0, multer_1.default)({ storage });
 const userProfile = (user, req) => {
     return {
-        id: user.id,
+        id: user.id || user._id,
         name: user.name,
         email: user.email,
         profile_picture: user.profile_picture ? `${req.protocol}://${req.get('host')}${user.profile_picture}` : '',
@@ -41,13 +41,15 @@ const userProfile = (user, req) => {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         is_admin: user.is_admin,
+        domain: user.domain,
     };
 };
+exports.userProfile = userProfile;
 const getUserProfile = (req, res) => {
     const user = req.user;
     res.json({
         status: 'success',
-        user: userProfile(user, req),
+        user: (0, exports.userProfile)(user, req),
         message: 'User profile fetched successfully',
     });
 };
@@ -57,7 +59,7 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const users = yield User_model_1.default.find();
         res.json({
             status: 'success',
-            users: users.map((user) => userProfile(user, req)),
+            users: users.map((user) => (0, exports.userProfile)(user, req)),
             message: 'Users fetched successfully',
         });
     }
@@ -81,7 +83,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         yield user.save();
         res.json({
             status: 'success',
-            user: Object.assign(Object.assign({}, userProfile(user, req)), { token }),
+            user: Object.assign(Object.assign({}, (0, exports.userProfile)(user, req)), { token }),
             message: 'User created successfully',
         });
     }
@@ -136,7 +138,7 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
         yield user.save();
         res.json({
             status: 'success',
-            user: userProfile(user, req),
+            user: (0, exports.userProfile)(user, req),
             message: 'User updated successfully',
         });
     }

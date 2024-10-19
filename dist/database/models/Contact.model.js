@@ -35,6 +35,10 @@ const contactMessageSchema = new mongoose_1.Schema({
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    user: {
+        type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User',
+        required: false
+    }
 });
 const ContactMessage = mongoose_1.default.model('ContactMessage', contactMessageSchema);
 exports.default = ContactMessage;

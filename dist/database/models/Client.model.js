@@ -40,6 +40,10 @@ const clientSchema = new mongoose_1.default.Schema({
     profile_picture: {
         type: String,
         required: true
+    },
+    user: {
+        type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User',
+        required: false
     }
 });
 clientSchema.pre('save', function (next) {

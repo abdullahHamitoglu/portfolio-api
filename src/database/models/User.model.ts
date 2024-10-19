@@ -6,6 +6,7 @@ export interface IUser extends Document {
     password: string;
     resume: string;
     profile_picture: string;
+    domain: string;
     is_admin: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -48,6 +49,10 @@ const userSchema = new Schema({
         type: String,
         default: null,
     },
+    domain: {
+        type: String,
+        default: null,
+    },
     email_verified: {
         type: Boolean,
         default: false,
@@ -62,7 +67,6 @@ const userSchema = new Schema({
         default: 'customer',
     }
 });
-// create a model using the schema
 
 
 const User = mongoose.model<IUser>('User', userSchema);

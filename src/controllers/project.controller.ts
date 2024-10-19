@@ -1,9 +1,9 @@
-import Project, { IProject } from "../database/models/projects.model";
+import Project, { IProject } from "../database/models/Projects.model";
 import { Request, Response } from "express";
 import { LocaleKeys } from "index";
 import { categoryFields } from "./category.controller";
 import { ICategory } from "../database/models/category.model";
-import { IUser } from "../database/models/user.model";
+import { IUser } from "../database/models/User.model";
 import { userProfile } from "./user.controller";
 
 const projectFields = (project: IProject, locale?: LocaleKeys) => ({

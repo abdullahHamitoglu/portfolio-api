@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import User, { IUser } from '../database/models/user.model';
+import User, { IUser } from '../database/models/User.model';
 import { secretKey } from '../middleware/authToken';
 import multer from 'multer';
 import path from 'path';
@@ -35,6 +35,7 @@ export const userProfile = (user: IUser, req: Request) => {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         is_admin: user.is_admin,
+        domain: user.domain,
     };
 }
 

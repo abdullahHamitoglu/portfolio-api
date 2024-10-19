@@ -34,6 +34,11 @@ const experienceSchema = new mongoose_1.Schema({
     description: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    user: {
+        type: mongoose_1.default.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 });
 const Experience = mongoose_1.default.model('Experience', experienceSchema);
 exports.default = Experience;
