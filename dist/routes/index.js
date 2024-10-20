@@ -13,6 +13,7 @@ const order_route_1 = require("./order.route");
 const category_route_1 = require("./category.route");
 const pages_route_1 = require("./pages.route");
 const storage_route_1 = require("./storage.route");
+const swagger_route_1 = require("./swagger.route");
 const router = (0, express_1.Router)();
 router.use('', user_route_1.UsersRoutes);
 router.use('/auth', auth_route_1.AuthRoutes);
@@ -25,6 +26,7 @@ router.use('/contact', contact_route_1.ContactRoutes);
 router.use('/orders', order_route_1.OrderRoutes);
 router.use('/pages', pages_route_1.PagesRoute);
 router.use('/storage', storage_route_1.StorageRoutes);
+router.get('/swagger', swagger_route_1.swaggerRoutes);
 router.use((req, res) => (res.status(404).json({
     status: 404,
     message: 'Route Not Found',

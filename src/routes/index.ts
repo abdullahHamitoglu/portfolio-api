@@ -10,6 +10,7 @@ import { OrderRoutes } from './order.route';
 import { CategoryRoutes } from './category.route';
 import { PagesRoute } from "./pages.route";
 import { StorageRoutes } from "./storage.route";
+import { swaggerRoutes } from "./swagger.route";
 
 const router: Router = Router();
 
@@ -24,6 +25,7 @@ router.use('/contact', ContactRoutes);
 router.use('/orders', OrderRoutes);
 router.use('/pages', PagesRoute);
 router.use('/storage', StorageRoutes);
+router.get('/swagger', swaggerRoutes);
 
 
 // Handle 404 errors
