@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MainRouter = void 0;
 const express_1 = require("express");
@@ -13,8 +16,11 @@ const order_route_1 = require("./order.route");
 const category_route_1 = require("./category.route");
 const pages_route_1 = require("./pages.route");
 const storage_route_1 = require("./storage.route");
-const swagger_route_1 = require("./swagger.route");
+const swagger_controller_1 = __importDefault(require("../controllers/swagger.controller"));
+const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const router = (0, express_1.Router)();
+const swaggerDocs = (0, swagger_jsdoc_1.default)(swagger_controller_1.default);
 router.use('', user_route_1.UsersRoutes);
 router.use('/auth', auth_route_1.AuthRoutes);
 router.use('/projects', project_route_1.ProjectRoutes);
@@ -26,7 +32,7 @@ router.use('/contact', contact_route_1.ContactRoutes);
 router.use('/orders', order_route_1.OrderRoutes);
 router.use('/pages', pages_route_1.PagesRoute);
 router.use('/storage', storage_route_1.StorageRoutes);
-router.get('/swagger', swagger_route_1.swaggerRoutes);
+router.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
 router.use((req, res) => (res.status(404).json({
     status: 404,
     message: 'Route Not Found',

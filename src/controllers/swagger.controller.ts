@@ -1,24 +1,12 @@
-import swaggerJSDoc from "swagger-jsdoc";
+import { Options } from "swagger-jsdoc";
 
-
-// Define controller methods here
-const options = {
+const swaggerOptions: Options = {
     definition: {
-        openapi: "3.1.0",
+        openapi: "3.0.0",
         info: {
-            title: "LogRocket Express API with Swagger",
-            version: "0.1.0",
-            description:
-                "This is a simple CRUD API application made with Express and documented with Swagger",
-            license: {
-                name: "MIT",
-                url: "https://spdx.org/licenses/MIT.html",
-            },
-            contact: {
-                name: "LogRocket",
-                url: "https://logrocket.com",
-                email: "info@email.com",
-            },
+            title: "Express API with Swagger",
+            version: "1.0.0",
+            description: "A simple Express API application with Swagger",
         },
         servers: [
             {
@@ -26,9 +14,11 @@ const options = {
             },
         ],
     },
-    apis: ["./routes/*.js"],
+    apis: [
+        "./src/routes/*.ts",
+        "./src/controllers/*.ts",
+        "./src/swagger/index.ts"
+    ],
 };
 
-export const specs = swaggerJSDoc(options);
-
-export default {};
+export default swaggerOptions;

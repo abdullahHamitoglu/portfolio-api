@@ -10,9 +10,14 @@ import { OrderRoutes } from './order.route';
 import { CategoryRoutes } from './category.route';
 import { PagesRoute } from "./pages.route";
 import { StorageRoutes } from "./storage.route";
-import { swaggerRoutes } from "./swagger.route";
+import swaggerOptions from "../controllers/swagger.controller";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 
 const router: Router = Router();
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+
 
 router.use('', UsersRoutes);
 router.use('/auth', AuthRoutes);
@@ -25,7 +30,7 @@ router.use('/contact', ContactRoutes);
 router.use('/orders', OrderRoutes);
 router.use('/pages', PagesRoute);
 router.use('/storage', StorageRoutes);
-router.get('/swagger', swaggerRoutes);
+router.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
 // Handle 404 errors
