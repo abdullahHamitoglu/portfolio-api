@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.updateUser = exports.getUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
+exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.updateUser = exports.getUserByDomain = exports.getUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_model_1 = __importDefault(require("../database/models/User.model"));
 const authToken_1 = require("../middleware/authToken");
@@ -94,6 +94,28 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUser = getUser;
+const getUserByDomain = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_model_1.default.findOne({ domain: req.params.domain });
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        res.json({
+            status: 'success',
+            user: (0, exports.userProfile)(user, req),
+            message: 'User fetched successfully',
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching user' });
+    }
+});
+exports.getUserByDomain = getUserByDomain;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User_model_1.default.findById(req.params.id);

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.projectFields = exports.deleteAllProjects = exports.deleteProject = exports.updateProject = exports.createProject = exports.getProjectById = exports.getAllProjects = void 0;
 const Projects_model_1 = __importDefault(require("../database/models/Projects.model"));
 const category_controller_1 = require("./category.controller");
+const User_model_1 = __importDefault(require("../database/models/User.model"));
 const user_controller_1 = require("./user.controller");
 const projectFields = (project, locale) => ({
     id: project._id,
@@ -35,7 +36,21 @@ function getAllProjects(req, res) {
         try {
             const { page = 1, limit = 10, featured, multiLocale } = req.query;
             const locale = req.query.locale || 'en';
-            const query = req.query;
+            const query = {};
+            if (!req.query.domain) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: req.t('domain_required'),
+                });
+            }
+            const user = yield User_model_1.default.findOne({ domain: req.query.domain });
+            if (!user) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: req.t('user_not_found'),
+                });
+            }
+            query.user = user._id;
             if (featured) {
                 query.featured = featured === 'true';
             }
@@ -98,9 +113,10 @@ function getProjectById(req, res) {
 exports.getProjectById = getProjectById;
 function createProject(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log(req.user);
         try {
             const locale = req.query.locale || 'en';
-            const project = yield Projects_model_1.default.create(req.body);
+            const project = yield Projects_model_1.default.create(Object.assign(req.body, { user: req.user.id }));
             res.json({
                 status: 'success',
                 project: projectFields(project),

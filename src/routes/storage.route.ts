@@ -1,39 +1,31 @@
 import { Router } from "express";
-import multer from "multer"; // multer kullanılarak dosya işlemleri yapılacak
-import { gallery, removeImages, uploadImages } from "../controllers/storage.controller";
+import multer from "multer"; // File operations will be performed using multer
+import { gallery, getVercelBlob, removeImages, removeVercelBlob, uploadImages, uploadVercelBlob } from "../controllers/storage.controller";
 import { authenticateToken } from "../middleware/authToken";
-import { list, put } from "@vercel/blob";
 
 const router = Router();
 
-// Memory storage ayarı, multer'ın dosyayı bellekte tutmasını sağlar
-const uploadMiddleware = multer({ storage: multer.memoryStorage() }).single('file'); // Tek dosya yükleme
+// Memory storage setting, allows multer to keep the file in memory
+const uploadMiddleware = multer({ storage: multer.memoryStorage() }).single('file'); // Single file upload
 
-// Galeri rotası, token doğrulaması ile erişim
+// Gallery route, accessible with token authentication
 router.get('/', authenticateToken, gallery);
 
-// Dosya yükleme rotası, token doğrulaması ve middleware
+// File upload route, with token authentication and middleware
 router.post('/', authenticateToken, uploadMiddleware, uploadImages);
 
-// Dosya silme rotası, token doğrulaması ile
+// File delete route, accessible with token authentication
 router.delete('/:filename', authenticateToken, removeImages);
 
-// Vercel Blob'dan dosya listeleme
-router.get('/vercel-blob', async (req, res) => {
-    try {
-        const response = await list(); // Blob'dan dosya listele
-        res.json({
-            status: 'success',
-            data: response,
-            message: 'Vercel Blob Storage API',
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Error retrieving files from Vercel Blob',
-        });
-    }
-});
+// File upload route, uploading files to Vercel Blob
+router.post('/vercel-blob', authenticateToken, uploadMiddleware, uploadVercelBlob);
+
+// Listing files from Vercel Blob
+router.get('/vercel-blob', authenticateToken, getVercelBlob);
+
+// delete file from vercel Blob
+router.delete('/vercel-blob/:file', authenticateToken, removeVercelBlob);
+
 
 /**
  * @swagger
@@ -42,6 +34,8 @@ router.get('/vercel-blob', async (req, res) => {
  *     summary: Retrieve a list of items from Vercel Blob Storage
  *     tags:
  *       - Vercel Blob Storage
+ *     security:
+ *      - Bearer: []
  *     responses:
  *       200:
  *         description: A list of items from Vercel Blob Storage
@@ -65,6 +59,8 @@ router.get('/vercel-blob', async (req, res) => {
  *     summary: Upload a file to Vercel Blob Storage
  *     tags:
  *       - Vercel Blob Storage
+ *     security:
+ *      - Bearer: []
  *     requestBody:
  *       required: true
  *       content:
@@ -106,38 +102,48 @@ router.get('/vercel-blob', async (req, res) => {
  *                 message:
  *                   type: string
  *                   example: No files uploaded
+ *   delete:
+ *     summary: Delete a file from Vercel Blob Storage
+ *     tags:
+ *       - Vercel Blob Storage
+ *     security:
+ *      - Bearer: []
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The name of the file to delete
+ *     responses:
+ *       200:
+ *         description: File deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: File deleted successfully
+ *       404:
+ *         description: File not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: File not found
  */
 
-// Dosya yükleme rotası, Vercel Blob'a dosya yükleme
-router.post('/vercel-blob', uploadMiddleware, async (req, res) => { 
-    try {
-        const file = req.file; // Tek dosya alınıyor
 
-        if (!file) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'No files uploaded',
-            });
-        }
-
-        // Dosyanın ismini ve içeriğini Vercel Blob'a yükle
-        const response = await put(file.originalname, file.buffer, {
-            access: "public",
-        });
-
-        res.json({
-            status: 'success',
-            data: response,
-            message: 'File uploaded successfully to Vercel Blob Storage',
-        });
-
-    } catch (error) {
-        console.error("Error uploading file:", error);
-        res.status(500).json({
-            status: 'error',
-            message: 'File upload failed',
-        });
-    }
-});
 
 export const StorageRoutes = router;

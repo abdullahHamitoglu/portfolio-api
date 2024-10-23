@@ -88,6 +88,26 @@ export const getUser = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error fetching user' });
     }
 };
+export const getUserByDomain = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findOne({ domain: req.params.domain });
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found',
+                user: null,
+            });
+        }
+        res.json({
+            status: 'success',
+            user: userProfile(user, req),
+            message: 'User fetched successfully',
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching user' });
+    }
+};
 
 export const updateUser = async (req: Request, res: Response) => {
     try {

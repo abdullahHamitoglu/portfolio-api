@@ -87,6 +87,32 @@
 
 /**
  * @swagger
+ * /users/{domain}:
+ *   get:
+ *     summary: Get a user by domain
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: domain
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user's domain
+ *     responses:
+ *       200:
+ *         description: User fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Error fetching user
+ */
+
+/**
+ * @swagger
  * /users:
  *   post:
  *     summary: Create a new user
@@ -1561,6 +1587,10 @@
  *         description: Filter by category ID
  *       - in: query
  *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: domain
  *         schema:
  *           type: string
  *         description: Filter by project status (e.g., 'active', 'archived')

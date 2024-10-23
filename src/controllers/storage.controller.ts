@@ -1,6 +1,8 @@
 import fs from 'fs';
 import { Request, Response } from 'express';
 import path from "path";
+import { list, put } from '@vercel/blob';
+import { del } from '@vercel/blob';
 
 // ** ===================  UPLOAD MULTIPLE IMAGES  ===================
 export const uploadImages = async (req: any, res: Response) => {
@@ -51,7 +53,7 @@ export const removeImages = async (req: any, res: Response) => {
 export const gallery = async (req: Request, res: Response) => {
     const uploadsDir = path.join(__dirname, '../../public/uploads');
     // find image is not used in projects 
-    
+
     fs.readdir(uploadsDir, (err, files) => {
         if (err) {
             console.log(err);
@@ -67,4 +69,80 @@ export const gallery = async (req: Request, res: Response) => {
             `${req.protocol}://${req.get('host')}/uploads/${image}`
         )));
     });
+}
+
+// upload with vercel blob 
+export const uploadVercelBlob = async (req: Request, res: Response) => {
+    try {
+        const file = req.file; // Tek dosya alınıyor
+
+        if (!file) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'No files uploaded',
+            });
+        }
+
+        // Dosyanın ismini ve içeriğini Vercel Blob'a yükle
+        const response = await put(file.originalname, file.buffer, {
+            access: "public",
+        });
+
+        res.json({
+            status: 'success',
+            data: response,
+            message: 'File uploaded successfully to Vercel Blob Storage',
+        });
+
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        res.status(500).json({
+            status: 'error',
+            message: 'File upload failed',
+        });
+    }
+}
+
+export const getVercelBlob = async (req: Request, res: Response) => {
+    try {
+        const response = await list(); // List files from Blob
+        res.json({
+            status: 'success',
+            data: response,
+            message: 'Vercel Blob Storage API',
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Error retrieving files from Vercel Blob',
+        });
+    }
+}
+
+export const removeVercelBlob = async (req: Request, res: Response) => {
+    try {
+        const { file } = req.body;
+        
+        if (!file) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Filename is required',
+            });
+        }
+
+        // Delete the file from Vercel Blob
+        await del(file.url);
+
+        res.json({
+            status: 'success',
+            message: 'File deleted successfully from Vercel Blob Storage',
+        });
+
+    } catch (error) {
+        console.error("Error deleting file:", error);
+        res.status(500).json({
+            status: 'error',
+            message: 'File deletion failed',
+        });
+    }
 }

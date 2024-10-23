@@ -11,5 +11,6 @@
     "project_deleted_successfully": "Project deleted successfully",
     "error_deleting_projects": "Error deleting projects",
     "projects_deleted_successfully": "All projects deleted successfully",
-    "no_projects_to_delete": "No projects to delete"
+    "no_projects_to_delete": "No projects to delete",
+    "user_is_required": "User is required"
 }

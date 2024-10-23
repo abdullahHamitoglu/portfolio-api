@@ -11,6 +11,7 @@ router.get('/profile', authToken_1.authenticateToken, user_controller_1.getUserP
 router.get('/users', user_controller_1.getUsers);
 router.get('/users/:id', user_controller_1.getUser);
 router.put('/users/:id', authToken_1.authenticateToken, user_controller_1.updateUser);
+router.put('/users/:domain', user_controller_1.getUserByDomain);
 router.post('/user/create', [
     (0, express_validator_1.check)('email').isEmail().withMessage('Valid email is required'),
     (0, express_validator_1.check)('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),

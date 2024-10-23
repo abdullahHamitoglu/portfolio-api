@@ -11,7 +11,7 @@ const router: Router = Router();
 // login 
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     summary: User login
  *     tags: [Auth]
@@ -458,7 +458,7 @@ router.post('/reset-password', [
  *     summary: Change password
  *     tags: [Auth]
  *     security:
- *       - bearerAuth: []
+ *       - Bearer: []
  *     requestBody:
  *       required: true
  *       content:

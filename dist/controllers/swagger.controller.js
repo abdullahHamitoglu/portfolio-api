@@ -12,7 +12,19 @@ const swaggerOptions = {
             {
                 url: "http://localhost:3030",
             },
+            {
+                url: "https://portfolio-api-pink.vercel.app"
+            }
         ],
+        components: {
+            securitySchemes: {
+                Bearer: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
     },
     apis: [
         "./src/routes/*.ts",

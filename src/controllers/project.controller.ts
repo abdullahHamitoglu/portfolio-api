@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { LocaleKeys } from "index";
 import { categoryFields } from "./category.controller";
 import { ICategory } from "../database/models/category.model";
-import { IUser } from "../database/models/User.model";
+import User, { IUser } from "../database/models/User.model";
 import { userProfile } from "./user.controller";
 
 const projectFields = (project: IProject, locale?: LocaleKeys) => ({
@@ -20,12 +20,31 @@ const projectFields = (project: IProject, locale?: LocaleKeys) => ({
     user: project.user ? userProfile(project.user as IUser, {} as any) : ''
 });
 
-async function getAllProjects(req: Request, res: Response) {
+
+async function getAllProjects(req: CustomRequest, res: Response) {
     try {
         const { page = 1, limit = 10, featured, multiLocale } = req.query;
         const locale = req.query.locale as LocaleKeys || 'en';
 
-        const query: any = req.query;
+        const query: any = {};
+        
+        if (!req.query.domain) {
+            return res.status(400).json({
+                status: 'error',
+                message: req.t('domain_required'),
+            });
+        }
+
+        // Kullanıcıyı domain ile bul
+        const user = await User.findOne({ domain: req.query.domain });
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: req.t('user_not_found'),
+            });
+        }
+        query.user = user._id;
+
         if (featured) {
             query.featured = featured === 'true';
         }
@@ -61,6 +80,7 @@ async function getAllProjects(req: Request, res: Response) {
 }
 
 async function getProjectById(req: Request, res: Response) {
+
     try {
         const locale = req.query.locale as LocaleKeys || 'en';
         const multiLocale = req.query.multiLocale;
@@ -84,10 +104,16 @@ async function getProjectById(req: Request, res: Response) {
     }
 }
 
-async function createProject(req: Request, res: Response) {
+interface CustomRequest extends Request {
+    user: IUser;
+}
+
+async function createProject(req: CustomRequest, res: Response) {
+    console.log(req.user);
+
     try {
         const locale = req.query.locale as LocaleKeys || 'en';
-        const project = await Project.create(req.body);
+        const project = await Project.create(Object.assign(req.body, { user: req.user.id }));
         res.json({
             status: 'success',
             project: projectFields(project),

@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.gallery = exports.removeImages = exports.uploadImages = void 0;
+exports.removeVercelBlob = exports.getVercelBlob = exports.uploadVercelBlob = exports.gallery = exports.removeImages = exports.uploadImages = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const blob_1 = require("@vercel/blob");
+const blob_2 = require("@vercel/blob");
 const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const files = req.files;
     files.forEach((file) => {
@@ -63,4 +65,72 @@ const gallery = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.gallery = gallery;
+const uploadVercelBlob = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const file = req.file;
+        if (!file) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'No files uploaded',
+            });
+        }
+        const response = yield (0, blob_1.put)(file.originalname, file.buffer, {
+            access: "public",
+        });
+        res.json({
+            status: 'success',
+            data: response,
+            message: 'File uploaded successfully to Vercel Blob Storage',
+        });
+    }
+    catch (error) {
+        console.error("Error uploading file:", error);
+        res.status(500).json({
+            status: 'error',
+            message: 'File upload failed',
+        });
+    }
+});
+exports.uploadVercelBlob = uploadVercelBlob;
+const getVercelBlob = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const response = yield (0, blob_1.list)();
+        res.json({
+            status: 'success',
+            data: response,
+            message: 'Vercel Blob Storage API',
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Error retrieving files from Vercel Blob',
+        });
+    }
+});
+exports.getVercelBlob = getVercelBlob;
+const removeVercelBlob = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { file } = req.body;
+        if (!file) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Filename is required',
+            });
+        }
+        yield (0, blob_2.del)(file.url);
+        res.json({
+            status: 'success',
+            message: 'File deleted successfully from Vercel Blob Storage',
+        });
+    }
+    catch (error) {
+        console.error("Error deleting file:", error);
+        res.status(500).json({
+            status: 'error',
+            message: 'File deletion failed',
+        });
+    }
+});
+exports.removeVercelBlob = removeVercelBlob;
 //# sourceMappingURL=storage.controller.js.map
