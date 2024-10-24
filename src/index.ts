@@ -19,7 +19,7 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/swagger-ui', express.static(path.join(__dirname, 'public')));
 
 // Swagger arayüzünü oluştururken swagger-ui-express'i kullanabilirsiniz
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, { swaggerOptions: { url: '/swagger-ui-init.js' } }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, { swaggerOptions: { url: '/swagger-ui-init.js' } }));
 // Middleware to parse incoming request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
