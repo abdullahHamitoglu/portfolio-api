@@ -4,14 +4,22 @@ import { MainRouter } from './routes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
 
 dotenv.config();
 
 // Initialize database
 import './database';
+import swaggerOptions from './controllers/swagger.controller';
 
 const app = express();
 
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/swagger-ui', express.static(path.join(__dirname, 'public')));
+
+// Swagger arayüzünü oluştururken swagger-ui-express'i kullanabilirsiniz
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, { swaggerOptions: { url: '/swagger-ui-init.js' } }));
 // Middleware to parse incoming request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
