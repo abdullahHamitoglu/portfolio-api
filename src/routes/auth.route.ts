@@ -24,10 +24,10 @@ const router: Router = Router();
  *             properties:
  *               email:
  *                 type: string
- *                 example: user@example.com
+ *                 example: admin@momen.design
  *               password:
  *                 type: string
- *                 example: password123
+ *                 example: 0943570304
  *     responses:
  *       200:
  *         description: User logged in successfully
@@ -44,7 +44,7 @@ const router: Router = Router();
  *                   properties:
  *                     email:
  *                       type: string
- *                       example: user@example.com
+ *                       example: admin@momen.design
  *                     name:
  *                       type: string
  *                       example: John Doe
@@ -167,7 +167,7 @@ router.post('/login', [
  *             properties:
  *               email:
  *                 type: string
- *                 example: user@example.com
+ *                 example: admin@momen.design
  *     responses:
  *       200:
  *         description: Email sent successfully
@@ -187,7 +187,7 @@ router.post('/login', [
  *                   properties:
  *                     email:
  *                       type: string
- *                       example: user@example.com
+ *                       example: admin@momen.design
  *                     token:
  *                       type: string
  *                       example: jwt_token
@@ -349,7 +349,7 @@ router.post('/send-reset-password', [
  *                   properties:
  *                     email:
  *                       type: string
- *                       example: user@example.com
+ *                       example: admin@momen.design
  *       400:
  *         description: Bad request
  *         content:
@@ -471,13 +471,13 @@ router.post('/reset-password', [
  *                 example: 60d0fe4f5311236168a109ca
  *               password:
  *                 type: string
- *                 example: oldpassword123
+ *                 example: old0943570304
  *               new_password:
  *                 type: string
- *                 example: newpassword123
+ *                 example: new0943570304
  *               confirm_password:
  *                 type: string
- *                 example: newpassword123
+ *                 example: new0943570304
  *     responses:
  *       200:
  *         description: Password changed successfully
