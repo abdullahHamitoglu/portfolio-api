@@ -26,11 +26,7 @@ const swaggerOptions = {
             },
         },
     },
-    apis: [
-        "./src/routes/*.ts",
-        "./src/controllers/*.ts",
-        "./src/swagger/index.ts"
-    ],
+    apis: process.env.NODE_ENV === 'production' ? ["**/*.js"] : ["**/*.ts"]
 };
 exports.default = swaggerOptions;
 //# sourceMappingURL=swagger.controller.js.map
