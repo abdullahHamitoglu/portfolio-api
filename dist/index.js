@@ -9,15 +9,9 @@ const routes_1 = require("./routes");
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
-const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
-const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 dotenv_1.default.config();
 require("./database");
-const swagger_controller_1 = __importDefault(require("./controllers/swagger.controller"));
 const app = (0, express_1.default)();
-const swaggerDocs = (0, swagger_jsdoc_1.default)(swagger_controller_1.default);
-app.use('/swagger-ui', express_1.default.static(path_1.default.join(__dirname, 'public')));
-app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs, { swaggerOptions: { url: '/swagger-ui-init.js' } }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 const corsOptions = {

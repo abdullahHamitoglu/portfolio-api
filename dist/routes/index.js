@@ -32,7 +32,11 @@ router.use('/contact', contact_route_1.ContactRoutes);
 router.use('/orders', order_route_1.OrderRoutes);
 router.use('/pages', pages_route_1.PagesRoute);
 router.use('/storage', storage_route_1.StorageRoutes);
-router.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
+router.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs, {
+    swaggerOptions: {
+        url: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.js',
+    }
+}));
 router.use((req, res) => (res.status(404).json({
     status: 404,
     message: 'Route Not Found',

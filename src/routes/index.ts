@@ -30,7 +30,11 @@ router.use('/contact', ContactRoutes);
 router.use('/orders', OrderRoutes);
 router.use('/pages', PagesRoute);
 router.use('/storage', StorageRoutes);
-router.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+router.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
+    swaggerOptions: {
+        url: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.js',
+    }
+}));
 
 
 // Handle 404 errors
