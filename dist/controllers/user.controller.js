@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.updateUser = exports.getUserByDomain = exports.getUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
+exports.updateUserProfile = exports.deleteUser = exports.createUser = exports.updateUser = exports.getUsersByDomain = exports.getUser = exports.getUsers = exports.getUserProfile = exports.userProfile = exports.upload = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_model_1 = __importDefault(require("../database/models/User.model"));
 const authToken_1 = require("../middleware/authToken");
@@ -39,7 +39,7 @@ const userProfile = (user, req) => {
         id: user.id || user._id,
         name: user.name,
         email: user.email,
-        profile_picture: user.profile_picture ? `${req.protocol}://${req.get('host')}${user.profile_picture}` : '',
+        profile_picture: user.profile_picture,
         email_verified: user.email_verified,
         resume: user.resume,
         createdAt: user.createdAt,
@@ -94,10 +94,10 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUser = getUser;
-const getUserByDomain = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getUsersByDomain = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_model_1.default.findOne({ domain: req.params.domain });
-        if (!user) {
+        const users = yield User_model_1.default.find({ domain: req.params.domain });
+        if (!users) {
             return res.status(404).json({
                 status: 'error',
                 message: 'User not found',
@@ -106,7 +106,7 @@ const getUserByDomain = (req, res) => __awaiter(void 0, void 0, void 0, function
         }
         res.json({
             status: 'success',
-            user: (0, exports.userProfile)(user, req),
+            users: users.map((user) => (0, exports.userProfile)(user, req)),
             message: 'User fetched successfully',
         });
     }
@@ -115,10 +115,16 @@ const getUserByDomain = (req, res) => __awaiter(void 0, void 0, void 0, function
         res.status(500).json({ error: 'Error fetching user' });
     }
 });
-exports.getUserByDomain = getUserByDomain;
+exports.getUsersByDomain = getUsersByDomain;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_model_1.default.findById(req.params.id);
+        if (req.body.password === '') {
+            delete req.body.password;
+        }
+        let user = yield User_model_1.default.findOneAndUpdate({ _id: req.params.id }, req.body, {
+            new: true,
+            runValidators: true,
+        });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -126,17 +132,6 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 user: null,
             });
         }
-        console.log(req.body);
-        const updatedUserData = Object.assign(Object.assign(Object.assign({}, user.toObject()), req.body), { updatedAt: new Date() });
-        if (req.files && 'profile_picture' in req.files) {
-            const image = req.files['profile_picture'];
-            if (image.length > 0) {
-                const imageFile = image[0];
-                updatedUserData.profile_picture = `/uploads/${imageFile.filename}`;
-            }
-        }
-        user.set(updatedUserData);
-        yield user.save();
         res.json({
             status: 'success',
             user: (0, exports.userProfile)(user, req),
@@ -144,16 +139,17 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         });
     }
     catch (error) {
-        console.error(error);
+        console.error('Error updating user:', error);
         res.status(500).json({
             status: 'error',
             user: null,
-            message: error.message ? error.message : error.toString(),
+            message: error.message || 'An error occurred while updating the user',
         });
     }
 });
 exports.updateUser = updateUser;
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('req.body', req.body);
     try {
         const existingUser = yield User_model_1.default.findOne({ email: req.body.email });
         if (existingUser) {

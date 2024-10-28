@@ -1,5 +1,28 @@
 import { Options } from "swagger-jsdoc";
 
+
+const testComponents = {
+    usertest: {
+        type: "object",
+        properties: {
+            id: {
+                type: "string",
+                description: "User ID",
+            },
+            email: {
+                type: "string",
+                description: "User email",
+            },
+            role: {
+                type: "string",
+                description: "User role",
+            },
+        },
+    },
+}
+
+
+
 const swaggerOptions: Options = {
     definition: {
         openapi: "3.0.0",

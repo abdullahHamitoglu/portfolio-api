@@ -9,12 +9,15 @@ dotenv.config();
 
 // Initialize database
 import './database';
-
+import bodyParser from 'body-parser';
+import multer from 'multer';
 const app = express();
 
+const forms = multer();
+
 // Middleware to parse incoming request bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // CORS options
 const corsOptions = {

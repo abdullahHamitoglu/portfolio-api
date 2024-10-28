@@ -31,11 +31,12 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 
 export const userProfile = (user: IUser, req: Request) => {
+
     return {
         id: user.id || user._id,
         name: user.name,
         email: user.email,
-        profile_picture: user.profile_picture ? `${req.protocol}://${req.get('host')}${user.profile_picture}` : '',
+        profile_picture: user.profile_picture,
         email_verified: user.email_verified,
         resume: user.resume,
         createdAt: user.createdAt,
@@ -88,10 +89,10 @@ export const getUser = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error fetching user' });
     }
 };
-export const getUserByDomain = async (req: Request, res: Response) => {
+export const getUsersByDomain = async (req: Request, res: Response) => {
     try {
-        const user = await User.findOne({ domain: req.params.domain });
-        if (!user) {
+        const users = await User.find({ domain: req.params.domain });
+        if (!users) {
             return res.status(404).json({
                 status: 'error',
                 message: 'User not found',
@@ -100,7 +101,7 @@ export const getUserByDomain = async (req: Request, res: Response) => {
         }
         res.json({
             status: 'success',
-            user: userProfile(user, req),
+            users: users.map((user: IUser) => userProfile(user, req)),
             message: 'User fetched successfully',
         });
     } catch (error) {
@@ -111,7 +112,16 @@ export const getUserByDomain = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
     try {
-        const user = await User.findById(req.params.id);
+        // Remove password field if it's empty to avoid validation error
+        if (req.body.password === '') {
+            delete req.body.password;
+        }
+
+        let user = await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
+            new: true,
+            runValidators: true,
+        });
+
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -119,44 +129,26 @@ export const updateUser = async (req: Request, res: Response) => {
                 user: null,
             });
         }
-        console.log(req.body);
-        
-        // Merge user data with updated fields
-        const updatedUserData = {
-            ...user.toObject(),
-            ...req.body,
-            updatedAt: new Date(),
-        };
 
-        // Save image to storage if provided
-        if (req.files && 'profile_picture' in req.files) {
-            const image = req.files['profile_picture'] as Express.Multer.File[];
-            if (image.length > 0) {
-                const imageFile = image[0]; // Assuming only one file per field
-                updatedUserData.profile_picture = `/uploads/${imageFile.filename}`;
-            }
-        }
-
-        // Update user with new data
-        user.set(updatedUserData);
-
-        await user.save();
         res.json({
             status: 'success',
             user: userProfile(user, req),
             message: 'User updated successfully',
         });
     } catch (error) {
-        console.error(error);
+        // Catch any errors and return a 500 error with a message
+        console.error('Error updating user:', error);
         res.status(500).json({
             status: 'error',
             user: null,
-            message: error.message ? error.message : error.toString(),
+            message: error.message || 'An error occurred while updating the user',
         });
     }
 };
 
 export const createUser = async (req: Request, res: Response) => {
+    console.log('req.body', req.body);
+
     try {
         const existingUser = await User.findOne({ email: req.body.email });
         if (existingUser) {

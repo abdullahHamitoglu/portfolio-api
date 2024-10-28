@@ -8,6 +8,7 @@ export const authenticateToken: (req: Request & { user?: IUser }, res: Response,
     const authHeader = req.headers.authorization;
 
     // Check if authorization header is missing
+    
     if (!authHeader) {
         res.status(401).json({
             status: 'error',

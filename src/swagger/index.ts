@@ -46,6 +46,8 @@
  *   get:
  *     summary: Get all users
  *     tags: [User]
+ *     security:
+ *      - Bearer: []
  *     responses:
  *       200:
  *         description: List of users
@@ -87,7 +89,7 @@
 
 /**
  * @swagger
- * /users/{domain}:
+ * /users/domain/{domain}:
  *   get:
  *     summary: Get a user by domain
  *     tags: [User]
@@ -117,6 +119,8 @@
  *   post:
  *     summary: Create a new user
  *     tags: [User]
+ *     security:
+ *       - Bearer: []
  *     requestBody:
  *       required: true
  *       content:
@@ -149,6 +153,8 @@
  *   put:
  *     summary: Update a user by ID
  *     tags: [User]
+ *     security:
+ *       - Bearer: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -159,7 +165,7 @@
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             properties:
@@ -170,6 +176,9 @@
  *               profile_picture:
  *                 type: string
  *                 format: binary
+ *               is_admin:
+ *                 type: boolean
+ *                 description: Whether the user has admin rights
  *     responses:
  *       200:
  *         description: User updated successfully

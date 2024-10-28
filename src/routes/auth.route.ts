@@ -6,6 +6,7 @@ import { authenticateToken, secretKey } from '../middleware/authToken';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import { userProfile } from '../controllers/user.controller';
 const router: Router = Router();
 
 // login 
@@ -139,8 +140,7 @@ router.post('/login', [
         res.json({
             status: 'success',
             user: {
-                email: user.email,
-                name: user.name,
+                ...userProfile(user, req),
                 token
             },
             message: 'User logged in successfully',

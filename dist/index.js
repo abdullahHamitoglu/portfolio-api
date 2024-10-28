@@ -11,9 +11,12 @@ const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 dotenv_1.default.config();
 require("./database");
+const body_parser_1 = __importDefault(require("body-parser"));
+const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: true }));
+const forms = (0, multer_1.default)();
+app.use(body_parser_1.default.json());
+app.use(body_parser_1.default.urlencoded({ extended: true }));
 const corsOptions = {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],

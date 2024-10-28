@@ -21,6 +21,7 @@ const authToken_1 = require("../middleware/authToken");
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const user_controller_1 = require("../controllers/user.controller");
 const router = (0, express_1.Router)();
 router.post('/login', [
     (0, express_validator_1.check)('email').notEmpty().withMessage('email is required'),
@@ -51,11 +52,7 @@ router.post('/login', [
         });
         res.json({
             status: 'success',
-            user: {
-                email: user.email,
-                name: user.name,
-                token
-            },
+            user: Object.assign(Object.assign({}, (0, user_controller_1.userProfile)(user, req)), { token }),
             message: 'User logged in successfully',
         });
     }
