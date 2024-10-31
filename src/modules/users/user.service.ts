@@ -18,6 +18,12 @@ export class UserService {
     return this.userModel.find();
   }
 
+  async getUser(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
   async createUser(createUserDto: any) {
     const existingUser = await this.userModel.findOne({
       email: createUserDto.email,
@@ -45,5 +51,9 @@ export class UserService {
     const user = await this.userModel.findByIdAndDelete(userId);
     if (!user) throw new NotFoundException('User not found');
     return user;
+  }
+
+  async findByEmail(email: string): Promise<User | undefined> {
+    return await this.userModel.findOne({ email });
   }
 }
