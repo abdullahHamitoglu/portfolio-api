@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../users/user.service'; // Kullanıcı servisi ile iletişim
+import { userProfile, UserService } from '../users/user.service'; // Kullanıcı servisi ile iletişim
 import { User } from '../users/user.schema';
 
 @Injectable()
@@ -10,19 +10,26 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
   // Kullanıcıyı doğrulama
-  async validateUser(email: string, pass: string): Promise<User | null> {
-    const user = await this.userService.findByEmail(email);
-    if (user && user.password === pass) {
-      return user;
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.userService.findByEmail(email); // Email ile kullanıcıyı bul
+    if (user && user.password === password) {
+      // Şifre doğrulaması (Hash kullanılmalı)
+      const { password, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+      return result; // Şifre hariç diğer bilgiler döndürülür
     }
-    return null;
+    return null; // Kullanıcı bulunamazsa veya şifre yanlışsa null döner
   }
 
   // Token üretme
   async login(user: User) {
     const payload = { username: user.email, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      message: 'Login successful',
+      user: {
+        ...userProfile(user),
+        token: this.jwtService.sign(payload),
+      },
+      token: this.jwtService.sign(payload),
     };
   }
 

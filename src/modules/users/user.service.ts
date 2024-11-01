@@ -4,6 +4,21 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './user.schema';
 import * as jwt from 'jsonwebtoken';
 
+export const userProfile = (user: User) => {
+  return {
+    id: user.id || user._id,
+    name: user.name,
+    email: user.email,
+    profile_picture: user.profile_picture,
+    email_verified: user.email_verified,
+    resume: user.resume,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    is_admin: user.is_admin,
+    domain: user.domain,
+  };
+};
+
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
@@ -11,7 +26,11 @@ export class UserService {
   async getUserProfile(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
-    return user;
+    return {
+      message: 'Profile fetched successfully',
+      user: userProfile(user),
+      status: 200,
+    };
   }
 
   async getUsers() {
@@ -21,7 +40,11 @@ export class UserService {
   async getUser(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
-    return user;
+    return {
+      message: 'User fetched successfully',
+      user: userProfile(user),
+      status: 200,
+    };
   }
 
   async createUser(createUserDto: any) {
@@ -36,7 +59,12 @@ export class UserService {
       expiresIn: '24h',
     });
 
-    return { user: newUser, token };
+    return {
+      message: 'User created successfully',
+      user: userProfile(newUser),
+      token,
+      status: 200,
+    };
   }
 
   async updateUser(userId: string, updateData: any) {
@@ -44,13 +72,21 @@ export class UserService {
       new: true,
     });
     if (!user) throw new NotFoundException('User not found');
-    return user;
+    return {
+      message: 'User updated successfully',
+      user: userProfile(user),
+      status: 200,
+    };
   }
 
   async deleteUser(userId: string) {
     const user = await this.userModel.findByIdAndDelete(userId);
     if (!user) throw new NotFoundException('User not found');
-    return user;
+    return {
+      message: 'User deleted successfully',
+      user: userProfile(user),
+      status: 200,
+    };
   }
 
   async findByEmail(email: string): Promise<User | undefined> {

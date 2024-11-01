@@ -27,10 +27,7 @@ async function bootstrap() {
       'This is a simple CRUD API application made with NestJS and documented with Swagger',
     )
     .setVersion('1.0.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'Bearer',
-    )
+    .addBearerAuth() // AuthGuard ile korunan endpoint'ler için eklenmeli
     .addServer('http://localhost:3080')
     .addServer('https://portfolio-api-pink.vercel.app')
     .build();
