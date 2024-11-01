@@ -7,19 +7,23 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyStatic from '@fastify/static';
 import { join } from 'path';
+import { FastifyReply } from 'fastify';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+
+  // Statik dosyaların sunulması
   app
     .getHttpAdapter()
     .getInstance()
     .register(fastifyStatic, {
       root: join(__dirname, '..', 'public'), // Statik dosyaların bulunduğu klasör
-      prefix: '/public/', // URL’de kullanılacak yol
+      prefix: '/', // URL’de kullanılacak yol
     });
+
   // Swagger yapılandırması
   const config = new DocumentBuilder()
     .setTitle('Portfolio API Documentation')
@@ -33,7 +37,15 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
+  // Swagger JSON döndürme endpoint'i
+  app.getHttpAdapter().get('/swagger-json', (_req, res: FastifyReply) => {
+    res.send(document);
+  });
+
   SwaggerModule.setup('api-docs', app, document);
+
+  // Sunucuyu başlatma
   await app.listen(process.env.PORT || 3080, '0.0.0.0');
 }
 bootstrap();

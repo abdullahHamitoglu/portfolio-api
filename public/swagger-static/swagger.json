@@ -10,9 +10,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "App"
-        ]
+        "tags": ["App"]
       }
     },
     "/users/profile": {
@@ -25,9 +23,7 @@
           }
         },
         "summary": "Get user profile",
-        "tags": [
-          "User"
-        ]
+        "tags": ["User"]
       }
     },
     "/users": {
@@ -45,9 +41,7 @@
           }
         ],
         "summary": "Get all users",
-        "tags": [
-          "User"
-        ]
+        "tags": ["User"]
       },
       "post": {
         "operationId": "UserController_createUser",
@@ -57,9 +51,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "User"
-        ]
+        "tags": ["User"]
       }
     },
     "/users/{id}": {
@@ -80,9 +72,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "User"
-        ]
+        "tags": ["User"]
       },
       "delete": {
         "operationId": "UserController_deleteUser",
@@ -101,9 +91,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "User"
-        ]
+        "tags": ["User"]
       },
       "get": {
         "operationId": "UserController_getUser",
@@ -122,9 +110,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "User"
-        ]
+        "tags": ["User"]
       }
     },
     "/projects": {
@@ -193,9 +179,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Project"
-        ]
+        "tags": ["Project"]
       },
       "post": {
         "operationId": "ProjectController_createProject",
@@ -215,9 +199,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Project"
-        ]
+        "tags": ["Project"]
       },
       "delete": {
         "operationId": "ProjectController_deleteAllProjects",
@@ -227,9 +209,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Project"
-        ]
+        "tags": ["Project"]
       }
     },
     "/projects/{id}": {
@@ -266,9 +246,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Project"
-        ]
+        "tags": ["Project"]
       },
       "put": {
         "operationId": "ProjectController_updateProject",
@@ -297,9 +275,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Project"
-        ]
+        "tags": ["Project"]
       },
       "delete": {
         "operationId": "ProjectController_deleteProject",
@@ -318,9 +294,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Project"
-        ]
+        "tags": ["Project"]
       }
     }
   },
@@ -331,7 +305,16 @@
     "contact": {}
   },
   "tags": [],
-  "servers": [],
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    },
+    {
+      "url": "https://portfolio-api.vercel.app",
+      "description": "Production server"
+    }
+  ],
   "components": {
     "securitySchemes": {
       "bearer": {
